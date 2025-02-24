@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+	{% load static %}
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Transcendence</title>
+		<link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+		<!-- Router and main app -->
+		<script src="{% static 'js/index/Router.js' %}"></script>
+		<script type="module" src="{% static 'js/index/index.js' %}"></script>
+				
+		<!-- Custom styles -->
+		<link href="{% static 'css/style.css' %}" rel="stylesheet">
+		<link href="{% static 'css/pong.css' %}" rel="stylesheet">
+		<link href="{% static 'css/views.css' %}" rel="stylesheet">
+	</head>
+	<body>
+		<nav-menu></nav-menu>
+		<login-menu></login-menu>
+		<div id="content" class="container mt-4">
+			<!-- Content will be loaded here by router -->
+		</div>
+	</body>    
+</html>

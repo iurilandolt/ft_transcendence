@@ -1,0 +1,84 @@
+services:
+  nginx:
+    container_name: nginx
+    build: ./requirements/nginx
+    image: nginx:42
+    depends_on:
+      - django
+    networks:
+      - transcendence
+    ports:
+      - "443:443"
+    volumes:
+      - web_data:/ft_transcendence
+      
+  django:
+    container_name: django
+    build: ./requirements/django
+    image: django:42
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - transcendence
+    volumes:
+      - web_data:/ft_transcendence
+    secrets:
+      - db_name
+      - db_user
+      - db_user_psw
+      - web_adm
+      - web_adm_psw
+    restart: unless-stopped
+
+  postgres:
+    container_name: postgres
+    build: ./requirements/postgres
+    image: postgres:42
+    networks:
+      - transcendence
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    secrets:
+      - db_name
+      - db_user
+      - db_user_psw
+      - db_adm_psw
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 3
+    
+networks:
+  transcendence:
+    name: transcendence
+
+volumes:
+  web_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: data/web
+      o: bind
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: data/db
+      o: bind
+
+secrets:
+  db_name:
+    file: ../secrets/db_name.txt
+  db_user:
+    file: ../secrets/db_user.txt
+  db_user_psw:
+    file: ../secrets/db_user_psw.txt
+  db_adm_psw:
+    file: ../secrets/db_adm_psw.txt
+  web_adm:
+    file: ../secrets/web_adm.txt
+  web_adm_psw:
+    file: ../secrets/web_adm_psw.txt

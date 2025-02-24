@@ -1,0 +1,172 @@
+body {
+	background-color: #000000;
+	margin: 0;
+	padding: 0;
+	
+	display: flex;
+	flex-direction: column;
+	position: relative; /* For absolute positioning of nav elements */
+}
+
+#content {
+	flex: 1;
+	display: flex;
+	justify-content: center; /* Center horizontally */
+	align-items: flex-start; /* Align to top */
+	padding: 20px;
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.menu-button {
+	position: fixed;
+	width: 25px;
+	height: 25px;
+	background-color: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(8px);
+	border-radius: 12px;
+	box-shadow: 0 4px 30px rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	transition: all 0.3s ease;
+	overflow: hidden;
+	cursor: pointer;
+	z-index: 1000; /* Ensure menu stays on top */
+}
+
+.menu-button.expanded {
+	width: 150px;
+	height: auto;
+}
+
+.menu-buttons {
+	display: none;
+	flex-direction: column;
+	gap: 8px;
+	padding: 8px;
+	margin-top: 25px;
+}
+
+.menu-button.expanded .menu-buttons {
+	display: flex;
+}
+
+.menu-button .menu-icon {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-button .nav-button {
+	color: rgb(157, 148, 148);
+	font-family: Arial, sans-serif;
+	font-size: 14px;
+	padding: 10px;
+	border-radius: 8px;
+	background-color: rgba(255, 255, 255, 0.1);
+	text-align: center;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+.menu-button.expanded .menu-icon {
+    margin: 0 auto;
+	margin-top: 15px;
+    width: 40px;
+    height: 40px;
+}
+
+.menu-button .nav-button:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+.menu-icon {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+}
+
+.nav-menu {
+	top: 20px;
+	left: 20px;
+}
+
+.login-menu {
+	top: 20px;
+	right: 20px;
+	left: auto !important;
+}
+
+.auth-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	max-width: 400px;
+	width: 100%;
+	padding: 2rem;
+	background: rgba(0, 0, 0, 0.5); 
+	backdrop-filter: blur(8px);
+	border-radius: 12px;
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); 
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.form-group {
+	display: flex;
+	flex-direction: column;
+}
+
+.auth-form input {
+	padding: 0.5rem;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 4px;
+	background: rgba(255, 255, 255, 0.05);
+	color: white;
+}
+
+.auth-form button,
+.login-button {
+	padding: 0.5rem;
+	background: rgba(0, 0, 0, 0.5); 
+	backdrop-filter: blur(8px);
+	border-radius: 8px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); 
+	color: white;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+	font-size: 16px;
+	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+}
+
+.auth-form button:hover,
+.login-button:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+.button-logo {
+	width: 20px;
+	height: 20px;
+}
+
+.error-messages {
+	color: #ff6b6b;
+	margin-top: 1rem;
+}
+
+.auth-link {
+	color: rgb(157, 148, 148);
+	text-decoration: none;
+	margin-top: 1rem;
+	text-align: center;
+}
+
+.auth-link:hover {
+	text-decoration: underline;
+}
