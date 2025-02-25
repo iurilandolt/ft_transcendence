@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 class Game(models.Model):
 	game_id = models.CharField(max_length=100, unique=True)
@@ -42,7 +43,7 @@ class OngoingGame(Game):
 
 class CompletedGame(Game):
 	winner_username = models.CharField(max_length=150)
-	completed_at = models.DateTimeField(auto_now_add=True) # = created_at for self
+	completed_at = models.DateTimeField(auto_now_add=True)
 
 	@classmethod
 	def create_from_ongoing(cls, ongoing_game, winner: str):
@@ -57,17 +58,25 @@ class CompletedGame(Game):
 	
 
 class Tournament(models.Model):
+	TOURNAMENT_STATUS = [
+		('REGISTERING', 'Registering'),
+		('IN_PROGRESS', 'In Progress'),
+		('COMPLETED', 'Completed'),
+	]
+
 	tournament_id = models.CharField(max_length=100, unique=True)
+	max_players = models.IntegerField(default=6)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 	winner = models.CharField(max_length=150, null=True)
-
-	class Meta:
-		abstract = True
-
-
-class OngoingTournament(Tournament):
-	players = models.JSONField() 
+	players = ArrayField(models.CharField(max_length=150), default=list)
+	rounds = ArrayField(ArrayField(models.JSONField(default=dict), default=list), default=list)
+	current_round = models.IntegerField(default=0)
+	status = models.CharField(
+		max_length=20,
+		choices=TOURNAMENT_STATUS,
+		default='REGISTERING'
+	)
 
 
 	@classmethod
@@ -75,13 +84,20 @@ class OngoingTournament(Tournament):
 		return cls.objects.create(
 			tournament_id=tournament_id,
 			players=players,
-			rounds=[],  # [{game_id, player1, player2, winner}, ...]
+			rounds=[], 
 			current_round=0
 		)
 	
 	@classmethod
 	def add_round_matches(cls, tournament_id: str, matches: list):
 		tournament = cls.objects.get(tournament_id=tournament_id)
-		tournament.rounds.append(matches)
+		tournament.rounds = tournament.rounds + [matches]
 		tournament.current_round += 1
 		tournament.save()
+
+	@classmethod
+	def player_in_tournament(cls, username: str) -> bool:
+		return cls.objects.filter(
+			players__contains=[username],
+			status__in=['REGISTERING', 'IN_PROGRESS']
+		).exists()

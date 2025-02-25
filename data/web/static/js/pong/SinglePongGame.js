@@ -1,9 +1,8 @@
 import { Player, Paddle, Ball, ScoreBoard, GameField } from './PongComponents.js';
 
 export class QuickLobby {
-	constructor(parent, view, mode = 'quick') {
+	constructor(parent, view) {
 		this.parent = parent;
-		this.mode = mode
 		this.view = view;
 		this.socket = null;
 		this.lobbyElement = null;
@@ -40,10 +39,7 @@ export class QuickLobby {
 
 	startLobby() {
 		this.createLobbyElement();
-		if (this.mode === 'quick') 
-			this.socket = new WebSocket(`wss://${window.location.host}/wss/mpong/`);
-		else if (this.mode === 'tournament')
-			this.socket = new WebSocket(`wss://${window.location.host}/wss/tpong/`);
+		this.socket = new WebSocket(`wss://${window.location.host}/wss/mpong/`);
 		this.setupSocketHandlers();
 	}
 

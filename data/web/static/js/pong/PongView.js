@@ -71,14 +71,13 @@ export class PongStartMenu {
 
 		startQuick.addEventListener('click', () => {
 			this.parent.removeChild(menuDiv);
-			const lobby = new QuickLobby(this.parent, this.view, 'quick');  
+			const lobby = new QuickLobby(this.parent, this.view);  
 			lobby.startLobby();
 		});
 
 		startTournament.addEventListener('click', () => {
 			this.parent.removeChild(menuDiv);
-			const lobby = new QuickLobby(this.parent, this.view, 'tournament');  
-			lobby.startLobby();
+			window.location.hash = '#/tournament';
 		});	
 		
 

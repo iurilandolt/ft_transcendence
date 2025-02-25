@@ -10,6 +10,8 @@ RUN pip install --root-user-action=ignore channels
 
 RUN pip install --root-user-action=ignore daphne[http2]
 
+# RUN pip install --root-user-action=ignore djangorestframework
+
 # RUN django-admin startproject ft_transcendence
 
 COPY entry.sh /

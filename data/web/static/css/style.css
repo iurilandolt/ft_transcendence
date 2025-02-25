@@ -18,6 +18,8 @@ body {
 	width: 100%;
 }
 
+/* login and nav menus */
+
 .menu-button {
 	position: fixed;
 	width: 25px;
@@ -169,4 +171,88 @@ body {
 
 .auth-link:hover {
 	text-decoration: underline;
+}
+
+/* tournament */
+
+.tournament-container {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	max-width: 800px;
+	width: 100%;
+	padding: 2rem;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(8px);
+	border-radius: 12px;
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tournament-actions {
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+.tournament-button {
+	padding: 0.5rem 1rem;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(8px);
+	border-radius: 8px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+	color: white;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+.tournament-button:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+.tournaments-list h2,
+.tournament-status h2 {
+	color: rgb(157, 148, 148);
+	font-family: Arial, sans-serif;
+	margin-bottom: 1rem;
+}
+
+.tournament-item {
+	padding: 1rem;
+	margin-bottom: 0.5rem;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(8px);
+	border-radius: 8px;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	cursor: pointer;
+	transition: all 0.3s ease;
+}
+
+.tournament-item:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+.tournament-item.selected {
+	background-color: rgba(255, 255, 255, 0.2);
+	border-color: rgba(255, 255, 255, 0.4);
+}
+
+.tournament-info {
+	display: flex;
+	justify-content: space-between;
+	color: rgb(157, 148, 148);
+	font-family: Arial, sans-serif;
+}
+
+#tournament-state {
+    color: rgb(157, 148, 148);
+    text-align: center;
+    padding: 2rem;
+}
+
+.no-tournaments {
+	color: rgb(157, 148, 148);
+	text-align: center;
+	padding: 2rem;
 }

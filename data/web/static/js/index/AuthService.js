@@ -21,7 +21,7 @@ export class AuthService {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'X-CSRFToken': this.getCsrfToken(),
+				'X-CSRFToken': this.getCsrfToken(), // document.cookie.match(/csrftoken=([\w-]+)/)[1]
 			},
 			body: JSON.stringify({ username, password })
 		});
