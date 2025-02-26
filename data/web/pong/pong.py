@@ -61,7 +61,7 @@ class PongGame():
 		while self.running:
 			await asyncio.sleep(1 / GAME_SETTINGS['display']['fps'])
 
-			if hasattr(self, 'self.game_id'):
+			if hasattr(self, 'game_id'):
 				if self.missing_players():
 					break
 				elif self.player_left():

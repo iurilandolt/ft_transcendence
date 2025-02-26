@@ -1,5 +1,5 @@
 from channels.db import database_sync_to_async
-from .models import OngoingGame, CompletedGame, Tournament
+from .models import OngoingGame, CompletedGame
 
 class GameDB:
 	@staticmethod
@@ -30,22 +30,3 @@ class GameDB:
 		except OngoingGame.DoesNotExist:
 			return False
 		
-
-class TournamentDB:
-	@staticmethod
-	async def create_tournament(tournament_id: str, players: list):
-		return await database_sync_to_async(Tournament.create_tournament)(
-			tournament_id, players
-		)
-
-	@staticmethod
-	async def update_matches(tournament_id: str, matches: dict):
-		tournament = await database_sync_to_async(Tournament.objects.get)(
-			tournament_id=tournament_id
-		)
-		tournament.matches = matches
-		await database_sync_to_async(tournament.save)()
-
-	@staticmethod
-	async def add_round_matches(tournament_id: str, matches: list):
-		return await database_sync_to_async(Tournament.add_round)(tournament_id, matches)

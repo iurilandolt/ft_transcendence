@@ -16,7 +16,10 @@ export class TournamentView extends BaseComponent {
         this.pollInterval = setInterval(() => this.fetchTournaments(), 5000);
 	}
 
-	
+	onDestroy(){
+		clearInterval(this.pollInterval);
+	}
+
 	setupEventListeners() {
 		const createBtn = this.getElementById("create-tournament");
 		const joinBtn = this.getElementById("join-tournament");
@@ -26,6 +29,24 @@ export class TournamentView extends BaseComponent {
 		joinBtn?.addEventListener('click', () => this.joinTournament());
 		leaveBtn?.addEventListener('click', () => this.leaveTournament());
 	}
+
+
+	// async fetchTournaments() {
+	// 	const response = await fetch('/tournament-view/list/', {
+	// 		method: 'GET',
+	// 		headers: {
+	// 			'Content-Type': 'application/json'
+	// 		}
+	// 	});
+	// 	const data = await response.json();
+	// 	const stateDiv = this.getElementById("tournament-state");
+		
+	// 	stateDiv.innerHTML = data.in_tournament 
+	// 		? `In Tournament: ${data.current_tournament_id}`
+	// 		: 'Not in tournament';
+		
+	// 	this.updateTournamentsList(data.tournaments);
+	// }
 
 
 	async fetchTournaments() {
@@ -38,13 +59,28 @@ export class TournamentView extends BaseComponent {
 		const data = await response.json();
 		const stateDiv = this.getElementById("tournament-state");
 		
-		stateDiv.innerHTML = data.in_tournament 
-			? `In Tournament: ${data.current_tournament_id}`
-			: 'Not in tournament';
+		if (data.in_tournament && data.current_tournament) {
+			const t = data.current_tournament;
+			stateDiv.innerHTML = `
+				<div>Tournament ID: ${data.current_tournament_id}</div>
+				<div>Status: ${t.status}</div>
+				 ${t.status === 'IN_PROGRESS' ? `<div>Round: ${t.current_round + 1}</div>` : ''}
+				<div>Players: ${t.players.join(', ')}</div>
+				${t.rounds.length > 0 ? `<div>Current Matches: ${this.formatMatches(t.rounds[t.current_round])}</div>` : ''}
+			`;
+		} else {
+			stateDiv.innerHTML = 'Not in tournament';
+		}
 		
 		this.updateTournamentsList(data.tournaments);
 	}
-
+	
+	formatMatches(matches) {
+		if (!matches) return '';
+		return matches.map(match => 
+			`${match.player1} vs ${match.player2} ${match.status !== 'PENDING' ? `(${match.status})` : ''}`
+		).join(' | ');
+	}
 
 	updateTournamentsList(tournaments) {
 		const container = this.getElementById("tournaments-container");
@@ -105,7 +141,7 @@ export class TournamentView extends BaseComponent {
 	
 		const tournamentId = selectedRow.dataset.tournamentId;
 		const response = await fetch('tournament-view/join/', {
-			method: 'POST',
+			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': AuthService.getCsrfToken(),
@@ -125,7 +161,7 @@ export class TournamentView extends BaseComponent {
 	async leaveTournament() {
 		this.clearError();
 		const response = await fetch('tournament-view/leave/', {
-			method: 'POST',
+			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',
 				'X-CSRFToken': AuthService.getCsrfToken(),

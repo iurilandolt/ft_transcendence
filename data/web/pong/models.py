@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+import random, secrets, time
 
 class Game(models.Model):
 	game_id = models.CharField(max_length=100, unique=True)
@@ -78,7 +79,6 @@ class Tournament(models.Model):
 		default='REGISTERING'
 	)
 
-
 	@classmethod
 	def create_tournament(cls, tournament_id: str, players: list):
 		return cls.objects.create(
@@ -89,15 +89,74 @@ class Tournament(models.Model):
 		)
 	
 	@classmethod
-	def add_round_matches(cls, tournament_id: str, matches: list):
-		tournament = cls.objects.get(tournament_id=tournament_id)
-		tournament.rounds = tournament.rounds + [matches]
-		tournament.current_round += 1
-		tournament.save()
-
-	@classmethod
 	def player_in_tournament(cls, username: str) -> bool:
 		return cls.objects.filter(
 			players__contains=[username],
 			status__in=['REGISTERING', 'IN_PROGRESS']
 		).exists()
+	
+
+	def generate_game_id(self) -> str:
+		timestamp = int(time.time())
+		token = secrets.token_hex(4)
+		return f"tg:{timestamp}:{token}"
+
+
+	def start_tournament(self):
+		if self.status != 'REGISTERING' or len(self.players) != self.max_players:
+			return False
+			
+		if self.max_players % 2 != 0:
+			return False
+			
+		players = self.players.copy()
+		random.shuffle(players)
+		
+		matches = []
+		for i in range(0, len(players), 2):
+			matches.append({
+				'player1': players[i],
+				'player2': players[i + 1],
+				'winner': None,
+				'game_id': self.generate_game_id(),
+				'status': 'PENDING'
+			})
+		
+		self.rounds = [matches]
+		self.status = 'IN_PROGRESS'
+		self.save()
+		return True
+
+	# @classmethod
+	# def add_round_matches(cls, tournament_id: str, matches: list):
+	# 	tournament = cls.objects.get(tournament_id=tournament_id)
+	# 	tournament.rounds = tournament.rounds + [matches]
+	# 	tournament.current_round += 1
+	# 	tournament.save()
+
+
+	# def start_tournament(self):
+	# 	if self.status != 'REGISTERING' or len(self.players) != self.max_players:
+	# 		return False
+			
+	# 	if self.max_players % 2 != 0:
+	# 		return False
+			
+	# 	import random
+	# 	players = self.players.copy()
+	# 	random.shuffle(players)
+		
+	# 	matches = []
+	# 	for i in range(0, len(players), 2):
+	# 		matches.append({
+	# 			'player1': players[i],
+	# 			'player2': players[i + 1],
+	# 			'winner': None,
+	# 			'game_id': None,
+	# 			'status': 'PENDING'
+	# 		})
+		
+	# 	self.rounds = [matches]
+	# 	self.status = 'IN_PROGRESS'
+	# 	self.save()
+	# 	return True

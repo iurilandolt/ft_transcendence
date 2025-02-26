@@ -76,7 +76,7 @@ def tournament_create(request):
 
 
 @login_required
-@require_http_methods(["POST"])
+@require_http_methods(["DELETE"])
 def tournament_leave(request):
 	tournament = Tournament.objects.filter(
 		players__contains=[request.user.username],
@@ -100,7 +100,7 @@ def tournament_leave(request):
 
 
 @login_required
-@require_http_methods(["POST"])
+@require_http_methods(["PUT"])
 def tournament_join(request):
 	data = json.loads(request.body)
 	tournament_id = data.get('tournament_id')
@@ -148,6 +148,12 @@ def tournament_list(request):
 	return JsonResponse({
 		'in_tournament': bool(user_tournament),
 		'current_tournament_id': user_tournament.tournament_id if user_tournament else None,
+		'current_tournament': {
+			'players': user_tournament.players if user_tournament else [],
+			'current_round': user_tournament.current_round if user_tournament else None,
+			'rounds': user_tournament.rounds if user_tournament else [],
+			'status': user_tournament.status if user_tournament else None
+		} if user_tournament else None,
 		'tournaments': [{
 			'tournament_id': t.tournament_id,
 			'status': t.status,
@@ -155,3 +161,26 @@ def tournament_list(request):
 			'max_players': t.max_players
 		} for t in tournaments]
 	})
+
+# @login_required
+# @require_http_methods(["GET"])
+# def tournament_list(request):
+# 	user_tournament = Tournament.objects.filter(
+# 		players__contains=[request.user.username],
+# 		status__in=['REGISTERING', 'IN_PROGRESS']
+# 	).first()
+
+# 	tournaments = Tournament.objects.filter(
+# 		status__in=['REGISTERING', 'IN_PROGRESS']
+# 	).order_by('-created_at')
+
+# 	return JsonResponse({
+# 		'in_tournament': bool(user_tournament),
+# 		'current_tournament_id': user_tournament.tournament_id if user_tournament else None,
+# 		'tournaments': [{
+# 			'tournament_id': t.tournament_id,
+# 			'status': t.status,
+# 			'player_count': len(t.players),
+# 			'max_players': t.max_players
+# 		} for t in tournaments]
+# 	})
