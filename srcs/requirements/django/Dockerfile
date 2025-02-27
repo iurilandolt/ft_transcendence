@@ -12,6 +12,10 @@ RUN pip install --root-user-action=ignore daphne[http2]
 
 # RUN pip install --root-user-action=ignore djangorestframework
 
+RUN pip install --root-user-action=ignore pygame
+
+RUN pip install --root-user-action=ignore neat-python
+
 # RUN django-admin startproject ft_transcendence
 
 COPY entry.sh /

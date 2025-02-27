@@ -171,6 +171,30 @@ export class PongGame {
 	}
 }
 
+export class AIPongGame extends PongGame {
+	constructor(container, view) {
+		super(container, view);
+		this.trainingMode = null;  // Will be set from the server
+	}
+
+	async startGame() {
+		this.socket = new WebSocket(`wss://${window.location.host}/wss/aipong/`);
+		this.setupSocketHandlers();
+		this.socket.onopen = () => {
+			this.socket.send(JSON.stringify({
+				action: "connect",
+			}));
+		};
+	}
+
+	setupPlayers(state) {
+		this.player1 = new Player(state.player1_id, this.paddleLeft, this.socket, "left");
+		this.player2 = new Player(state.player2_id, this.paddleRight, this.socket, "right");
+
+		this.player1.inputManager('w', 's');
+	}
+}
+
 export class SinglePongGame extends PongGame {
 	constructor(container, view) {
 		super(container, view);

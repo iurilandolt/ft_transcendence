@@ -1,4 +1,4 @@
-import { QuickLobby, SinglePongGame, MultiPongGame } from './SinglePongGame.js';
+import { QuickLobby, SinglePongGame, AIPongGame } from './SinglePongGame.js';
 export class PongView extends BaseComponent {
 	constructor() {
 		super('/pong-view/');  // endpoint instead of static file
@@ -65,7 +65,8 @@ export class PongStartMenu {
 
 		startAi.addEventListener('click', () => {
 			this.parent.removeChild(menuDiv);
-			const game = new SinglePongGame(this.parent, this.view);  
+			// const game = new SinglePongGame(this.parent, this.view);  
+			const game = new AIPongGame(this.parent, this.view);
 			game.startGame('ai');
 		});
 

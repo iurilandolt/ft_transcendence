@@ -1,6 +1,4 @@
-import json
-import asyncio
-import random
+import json, asyncio, random, math
 
 GAME_SETTINGS = {
 	'field': {
@@ -122,58 +120,85 @@ class Ball:
 		self.dy = 0
 		self.wait_time = None
 		self.is_waiting = False
-	
+
+	def _get_random_angle(self, min_angle, max_angle, excluded_angles):
+		"""Return a random angle (in radians) between min_angle & max_angle,
+		excluding anything in 'excluded_angles' (in degrees)."""
+		angle_in_degrees = 0
+		while angle_in_degrees in excluded_angles:
+			angle_in_degrees = random.randrange(min_angle, max_angle)
+		return math.radians(angle_in_degrees)
+
 	async def countdown(self, duration):
 		await asyncio.sleep(duration)
 		self.is_waiting = False
 
 	def coin_toss(self):
-		self.dx = 1 if random.random() > 0.5 else -1
-		self.dy = 1 if random.random() > 0.5 else -1
+		angle = self._get_random_angle(-60, 60, [0])
+		pos = 1 if random.random() < 0.5 else -1
+		self.dx = pos * abs(math.cos(angle))
+		self.dy = math.sin(angle)
 
-	def reset(self, scoreBoard : ScoreBoard, leftPlayer : Player, rightPlayer : Player):
+	def reset(self, scoreBoard, leftPlayer, rightPlayer):
+		"""
+		Resets the ball for the next play.
+		"""
 		self.x = GAME_SETTINGS['ball']['start_x']
 		self.y = GAME_SETTINGS['ball']['start_y']
+		self.velo = GAME_SETTINGS['ball']['velo']
+		angle = self._get_random_angle(-60, 60, [0])
+
 		if scoreBoard.last_scored is None:
-			self.coin_toss()
-		elif scoreBoard.last_scored: # Set direction towards scoring player, maybe swap ?
-			self.dx = 1 if scoreBoard.last_scored == rightPlayer else -1
-			self.dy = 1 if random.random() > 0.5 else -1
-			
+			pos = 1 if random.random() < 0.5 else -1
+			self.dx = pos * abs(math.cos(angle))
+		else:
+			if scoreBoard.last_scored == rightPlayer:
+				self.dx = -abs(math.cos(angle))
+			else:
+				self.dx = abs(math.cos(angle))
+
+		self.dy = math.sin(angle)
 		self.is_waiting = True
 		leftPlayer.paddle.reset()
 		rightPlayer.paddle.reset()
 		asyncio.create_task(self.countdown(3))
 
-	def update(self, scoreBoard: ScoreBoard, leftPlayer: Player, rightPlayer: Player):
+	def update(self, scoreBoard, leftPlayer, rightPlayer):
 		if self.is_waiting:
 			return
-			
-		# Position update
+
 		self.x += self.velo * self.dx
 		self.y += self.velo * self.dy
 
-		# Collision with top and bottom walls
 		if self.y <= 0 or self.y >= GAME_SETTINGS['field']['height'] - self.size:
 			self.dy *= -1
 
-		# Collision with left paddle
 		if (self.x <= leftPlayer.paddle.x + leftPlayer.paddle.width and
 			self.x + self.size >= leftPlayer.paddle.x and
 			self.y + self.size >= leftPlayer.paddle.y and
 			self.y <= leftPlayer.paddle.y + leftPlayer.paddle.height):
-			self.dx *= -1
+			paddle_center = leftPlayer.paddle.y + leftPlayer.paddle.height / 2
+			offset = (self.y + self.size / 2) - paddle_center
+			normalized = offset / (leftPlayer.paddle.height / 2)
+			angle = normalized * math.radians(60) + random.uniform(-0.15, 0.15)
+			self.dx = abs(math.cos(angle))
+			self.dy = math.sin(angle)
+			self.velo += 0.3
 			self.x = leftPlayer.paddle.x + leftPlayer.paddle.width
 
-		# Collision with right paddle
 		if (self.x + self.size >= rightPlayer.paddle.x and
 			self.y + self.size >= rightPlayer.paddle.y and
 			self.y <= rightPlayer.paddle.y + rightPlayer.paddle.height):
-			self.dx *= -1
+			paddle_center = rightPlayer.paddle.y + rightPlayer.paddle.height / 2
+			offset = (self.y + self.size / 2) - paddle_center
+			normalized = offset / (rightPlayer.paddle.height / 2)
+			angle = normalized * math.radians(60) + random.uniform(-0.15, 0.15)
+			self.dx = -abs(math.cos(angle))
+			self.dy = math.sin(angle)
+			self.velo += 0.3
 			self.x = rightPlayer.paddle.x - self.size
 
-		# Scoring and reset conditions
-		if self.x <= 0:  
+		if self.x <= 0:
 			rightPlayer.score_point()
 			if rightPlayer.score >= GAME_SETTINGS['match']['win_points']:
 				scoreBoard.update(rightPlayer)
@@ -181,7 +206,8 @@ class Ball:
 			else:
 				scoreBoard.update(rightPlayer)
 			self.reset(scoreBoard, leftPlayer, rightPlayer)
-		elif self.x >= GAME_SETTINGS['field']['width']: 
+
+		elif self.x >= GAME_SETTINGS['field']['width']:
 			leftPlayer.score_point()
 			if leftPlayer.score >= GAME_SETTINGS['match']['win_points']:
 				scoreBoard.update(leftPlayer)
@@ -189,16 +215,18 @@ class Ball:
 			else:
 				scoreBoard.update(leftPlayer)
 			self.reset(scoreBoard, leftPlayer, rightPlayer)
+
 		scoreBoard.update()
 
 
 class AIPlayer(Player):
-	def update(self, ball: Ball):
-		paddle_center = self.paddle.y + (self.paddle.height / 2)
-		ball_center = ball.y + (ball.size / 2)
-		dead_zone = 20
-		diff = ball_center - paddle_center
-		if abs(diff) < dead_zone:
-			self.paddle.direction = 0
-		else:
-			self.paddle.direction = 1 if diff > 0 else -1
+	# def update(self, ball: Ball):
+	# 	paddle_center = self.paddle.y + (self.paddle.height / 2)
+	# 	ball_center = ball.y + (ball.size / 2)
+	# 	dead_zone = 20
+	# 	diff = ball_center - paddle_center
+	# 	if abs(diff) < dead_zone:
+	# 		self.paddle.direction = 0
+	# 	else:
+	# 		self.paddle.direction = 1 if diff > 0 else -1
+	pass

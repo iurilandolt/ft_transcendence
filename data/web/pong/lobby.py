@@ -27,7 +27,6 @@ class QuickLobby(AsyncWebsocketConsumer):
 			reconnect_data = {
 				'event': 'match_found',
 				'state': {
-					# 'game_id': ongoing_game,
 					'game_url': f'wss/mpong/game/{ongoing_game}/',
 				}
 			}

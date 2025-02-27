@@ -1,5 +1,8 @@
 from .pong_components import Paddle, Ball, Player, AIPlayer, ScoreBoard, GameField, GAME_SETTINGS
-import asyncio, logging
+from .pong_ai_components import AITraining
+from multiprocessing import Process
+import asyncio, neat, os, time, logging, pickle
+
 
 logger = logging.getLogger('pong')
 class PongGame():
@@ -58,6 +61,10 @@ class PongGame():
 
 	async def game_loop(self):
 		self.ball.reset(self.scoreBoard, self.player1, self.player2)
+
+		if self.mode == 'ai':
+			self.init_ai()
+
 		while self.running:
 			await asyncio.sleep(1 / GAME_SETTINGS['display']['fps'])
 
@@ -66,14 +73,13 @@ class PongGame():
 					break
 				elif self.player_left():
 					continue
-
 			self.paddleLeft.update()
 			self.paddleRight.update()
 			self.ball.update(self.scoreBoard, self.player1, self.player2)
 			await self.broadcast_game_state()
 
 			if self.mode == 'ai':
-				self.player2.update(self.ball)
+				self.update_ai()
 
 			if (winner := self.scoreBoard.end_match()): # this could be done only when a point is scored
 				await self.scoreBoard.send()
@@ -138,4 +144,60 @@ class MultiPongGame(PongGame):
 		self.player2 = Player(self.consumers[1].get_username(), self.paddleRight)
 
 
+class AiPongGame(PongGame):
+	def __init__(self):
+		super().__init__('ai')
+		local_dir = os.path.dirname(__file__)
+		config_path = os.path.join(local_dir, "config.txt")
+		self.config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+								neat.DefaultSpeciesSet, neat.DefaultStagnation,
+								config_path)
+		with open("pong/best_ai-3", "rb") as f:
+			self.ai_player = pickle.load(f)
 
+	async def setup_players(self):
+		self.player1 = Player(self.consumers[0].get_username(), self.paddleLeft)
+		self.player2 = AIPlayer('AI', self.paddleRight)
+
+	def init_ai(self):
+		self.net1 = neat.nn.FeedForwardNetwork.create(self.ai_player, self.config)
+		self.last_ai_update = time.time()
+
+	def update_ai(self):
+		current_time = time.time()
+		if current_time - self.last_ai_update >= 0.01:
+			output1 = self.net1.activate((self.paddleRight.y, self.ball.y, abs(self.paddleRight.x - self.ball.x)))
+			decision1 = output1.index(max(output1))
+			self.paddleRight.direction = 0 if decision1 == 0 else (-1 if decision1 == 1 else 1)
+			self.last_ai_update = current_time
+
+
+	# async def game_loop(self):
+	# 	self.ball.reset(self.scoreBoard, self.player1, self.player2)
+
+	# 	if self.mode == 'ai':
+	# 		self.init_ai()
+
+	# 	while self.running:
+	# 		await asyncio.sleep(1 / GAME_SETTINGS['display']['fps'])
+
+	# 		if hasattr(self, 'game_id'):
+	# 			if self.missing_players():
+	# 				break
+	# 			elif self.player_left():
+	# 				continue
+
+	# 		self.paddleLeft.update()
+	# 		self.paddleRight.update()
+	# 		self.ball.update(self.scoreBoard, self.player1, self.player2)
+	# 		await self.broadcast_game_state()
+
+	# 		if self.mode == 'ai':
+	# 			self.update_ai()
+
+	# 		if (winner := self.scoreBoard.end_match()): # this could be done only when a point is scored
+	# 			await self.scoreBoard.send()
+	# 			await self.broadcast_game_end(winner)
+	# 			await asyncio.sleep(0.1)
+	# 			break
+			
