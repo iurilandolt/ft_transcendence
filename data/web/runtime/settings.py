@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from authservice.config import SOCIALACCOUNT_PROVIDERS as FORTY_TWO_PROVIDERS
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -48,9 +49,25 @@ SECRET_KEY = 'django-insecure-r3%a9xhfwbm8+2bq(%%_r77)%(-7s3xq_$$4g@0q9=%03xd(za
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost',]
+ALLOWED_HOSTS = [
+    'localhost',
+    '10.12.5.1',
+    '10.12.*.*',
+    '*'
+]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost:4443',
+    'https://172.18.*.*:4443',
+    'https://10.12.5.1:4443',  
+    'https://localhost:443',
+    'https://localhost',
+    'http://10.12.5.1:4443',   # Added HTTP version
+    'https://10.12.*.*:4443',  # Added wider subnet access
+    'http://10.12.*.*:4443'    # Added HTTP version for subnet
+]
 
 SECURE_SSL_REDIRECT = True
 
@@ -59,6 +76,8 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
 # Application definition
+
+SITE_ID = 1
 
 INSTALLED_APPS = [
 	'daphne',
@@ -69,8 +88,14 @@ INSTALLED_APPS = [
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
+	'django.contrib.sites',
+	'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.oauth2',
 	'backend',
 	'pong',
+	'tournaments',
 	'authservice',
 ]
 
@@ -84,8 +109,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
-
 ROOT_URLCONF = 'runtime.urls'
 
 TEMPLATES = [
@@ -93,7 +118,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             BASE_DIR / 'templates',
-			BASE_DIR / 'templates', 'views',
+            BASE_DIR / 'templates', 'views',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -143,18 +168,18 @@ DATABASES = {
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+	{
+		'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+	},
+	{
+		'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+	},
+	{
+		'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+	},
+	{
+		'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+	},
 ]
 
 # Internationalization
@@ -179,3 +204,24 @@ STATICFILES_DIRS = [BASE_DIR / 'static',]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+	'42school': {
+		'SCOPE': [
+			'email',
+			'profile',
+		],
+		'AUTH_PARAMS': {
+			'access_type': 'online',
+		},
+		'APP': {
+			'client_id': read_secret('42_uid'),
+			'secret': read_secret('42_secret'),
+			'key': '',
+		},
+	}
+}

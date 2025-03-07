@@ -1,8 +1,11 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .pong import PongGame, MultiPongGame
+from .pong import PongGame, MultiPongGame, AiPongGame
 from .pong_components import Player
+from multiprocessing import Process
+from .ai.pong_ai_components import AITraining
 from .db_api import GameDB
-import json, logging
+import json, os, neat, logging
+
 
 logger = logging.getLogger('pong')
 
@@ -14,7 +17,6 @@ class SinglePongConsumer(AsyncWebsocketConsumer):
 		self.mode = 'vs'
 		self.id = None
 		self.game : PongGame = None
-
 	
 	def get_username(self):
 		return self.scope["user"].username if self.scope["user"].is_authenticated else None
@@ -32,7 +34,6 @@ class SinglePongConsumer(AsyncWebsocketConsumer):
 
 
 	async def disconnect(self, close_code):
-		self.running = False
 		if self.id in self.active_games:
 			if not self.game:
 				return
@@ -221,3 +222,59 @@ class MultiPongConsumer(SinglePongConsumer):
 	async def broadcast_game_score(self, score_data: dict):
 		await super().broadcast_game_score(score_data)
 		await GameDB.update_score(self.game_id, score_data['state']['player1_sets'], score_data['state']['player2_sets'])
+
+class AIConsumer(SinglePongConsumer):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		local_dir = os.path.dirname(__file__)
+		config_path = os.path.join(local_dir, "ai/config.txt")
+		self.config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+								neat.DefaultSpeciesSet, neat.DefaultStagnation,
+								config_path)
+		self.training_mode = False
+
+
+	async def connect(self):
+
+		if self.training_mode == True:
+			process = Process(target=AITraining, args=(self.config,))
+			process.start()
+			return
+		else:
+			if not self.scope["user"].is_authenticated:
+				await self.close()
+				return
+			
+			if self.id not in self.active_games:
+				self.active_games[self.id] = self.id
+			else:
+				await self.close()
+				return
+			await self.accept()
+
+
+	async def disconnect(self, close_code):
+		if self.id in self.active_games:
+			if not self.game:
+				return
+			self.game.remove_consumer(self)
+			del self.active_games[self.id]
+
+	async def receive(self, text_data):
+		data = json.loads(text_data)
+		if 'action' not in data:
+			return
+		match data['action']:
+			case 'connect':
+				self.game = AiPongGame()
+				self.game.add_consumer(self)
+				await self.game.init_game_components()
+				await self.game.start()
+
+			case 'paddle_move_start':
+				paddle = self.game.paddleLeft
+				paddle.direction = -1 if data.get('direction') == 'up' else 1
+			case 'paddle_move_stop':
+				paddle = self.game.paddleLeft
+				paddle.direction = 0
+

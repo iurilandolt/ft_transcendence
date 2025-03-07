@@ -78,14 +78,4 @@ export class AuthService {
 			?.split('=')[1];
 	}
 
-	// wip
-	static authEvent() { // create event to which compoenents can listen?
-		const event = new CustomEvent('auth-event', {
-			detail: {
-				isAuthenticated: this.isAuthenticated,
-				user: this.currentUser
-			}
-		});
-		document.dispatchEvent(event);
-	}
 }
