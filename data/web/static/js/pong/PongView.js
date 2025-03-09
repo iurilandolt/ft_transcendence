@@ -12,6 +12,15 @@ export class PongView extends BaseComponent {
 		
 		const menu = new PongStartMenu(element, this);
 		menu.render();
+
+		window.addEventListener('beforeunload', () => {
+			const canvas = document.querySelector('canvas');
+			if (canvas) {
+				for (const game of this.activeGames) {
+					game.cleanup();
+				}
+			}
+		});
 	}
 
 	registerGame(game) {
@@ -27,6 +36,7 @@ export class PongView extends BaseComponent {
 			game.cleanup();
 		}
 		this.activeGames.clear();
+		window.removeEventListener('beforeunload', this.beforeUnloadListener);
 	}
 }
 

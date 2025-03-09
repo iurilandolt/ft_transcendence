@@ -170,7 +170,7 @@ class Ball:
 		self.x += self.velo * self.dx
 		self.y += self.velo * self.dy
 
-		if self.y <= 0 or self.y >= GAME_SETTINGS['field']['height'] - self.size:
+		if self.y <= self.size or self.y >= GAME_SETTINGS['field']['height'] - self.size:
 			self.dy *= -1
 
 		if (self.x <= leftPlayer.paddle.x + leftPlayer.paddle.width and

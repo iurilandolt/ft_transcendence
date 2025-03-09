@@ -46,6 +46,8 @@ class PongGame():
 			'player2_score': self.player2.score,
 			'player1_sets': self.player1.sets,
 			'player2_sets': self.player2.sets,
+			'win_points': GAME_SETTINGS['match']['win_points'],
+			'win_sets': GAME_SETTINGS['match']['win_sets'],
 			'field_width': self.gamefield.width,
 			'field_height': self.gamefield.height,
 			'l_paddle_y': self.paddleLeft.y,
@@ -163,7 +165,7 @@ class AiPongGame(PongGame):
 
 	def update_ai(self):
 		current_time = time.time()
-		if current_time - self.last_ai_update >= 0.01:
+		if current_time - self.last_ai_update >= 0.30:
 			output1 = self.net1.activate((self.paddleRight.y, self.ball.y, abs(self.paddleRight.x - self.ball.x)))
 			decision1 = output1.index(max(output1))
 			self.paddleRight.direction = 0 if decision1 == 0 else (-1 if decision1 == 1 else 1)

@@ -45,39 +45,86 @@
     margin-bottom: 20px;
 }
 
-#game-field {
-	width: 0;
-	height: 0;
-	background-color: rgb(11, 4, 38);
-	margin: 0 auto;
-	position: relative;
-
-}
-
 .game-container {
     position: relative;
     margin: 0 auto;
-
 }
-
-#paddle-left, #paddle-right, #ball {
-    width: 0px;
-    height: 0px;
-    background-color: white;
-    position: absolute;
-    border-radius: 15px;
-}
+/*  */
 
 #score-board {
-	position: absolute;
-	top: 20px;
-	left: 50%;
-	transform: translateX(-50%);
-	color: white;
-	font-size: 24px;
-	z-index: 1;
+    position: relative;
+    color: white;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px; /* Adjust padding to reduce space */
 }
 
-#separator {
-	margin: 0 10px;
+.scoreboard-container {
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px; /* Adjust padding to reduce space */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.player-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    text-align: center;
+}
+
+#player1-info, #player2-info {
+    flex: 1;
+}
+
+.player-name {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    color: #fff;
+    margin: 5px 0; /* Adjust margin to reduce space */
+    padding: 10px; /* Adjust padding to reduce space */
+}
+
+.player-sets, .player-points {
+    display: flex;
+    justify-content: center;
+}
+
+.set-indicator, .point-indicator {
+    width: 10px;
+    height: 10px;
+    margin: 2px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.set-indicator.won {
+    background-color: gold; /* Set color to gold for won sets */
+}
+
+.point-indicator.won.left {
+    background-color: #0000ff; /* Set color to blue for left player */
+}
+
+.point-indicator.won.right {
+    background-color: #ff0000; /* Set color to red for right player */
+}
+
+.winner-text {
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 16px;
+	color: gold;
+	text-align: center;
+	margin: 10px 0;
+}
+
+.separator {
+    color: #fff;
+    margin: 0 20px;
 }
