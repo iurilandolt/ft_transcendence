@@ -1,6 +1,6 @@
 from django.urls import path
-from .pong import pong
+from .consumers import LoginMenuConsumer
 
-websocket_urlpatterns = [
-    path('ws/pong/', pong.SinglePongConsumer.as_asgi()),
+backend_websocket_urlpatterns = [
+    path('wss/login-menu/', LoginMenuConsumer.as_asgi()),
 ]

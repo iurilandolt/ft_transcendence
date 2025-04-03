@@ -5,12 +5,7 @@ export class LoginView extends BaseComponent {
 		super('/login-view/');
 	}
 
-	async onIni() {
-		if (AuthService.isAuthenticated) {
-			window.location.hash = '#/home';
-			return;
-		}
-
+	async onIni() {		
 		const form = this.getElementById('login-form');
 		const errorDiv = this.getElementById('form-errors');
 		const login42Button = this.getElementById('login_42');
@@ -23,16 +18,15 @@ export class LoginView extends BaseComponent {
 				const formData = new FormData(form);
 				await AuthService.login(
 					formData.get('username'),
-					formData.get('password')
+					formData.get('password'),
 				);
-				window.location.hash = '#/home';
 			} catch (error) {
 				errorDiv.textContent = error.message;			
 			}
 		});
 
 		login42Button?.addEventListener('click', async () => {
-			window.location.href = 'https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-f8562a1795538b5f2a9185781d374e1152c6466501442d50530025b059fe92ad&redirect_uri=https%3A%2F%2Flocalhost%3A4443%2Foauth%2Fcallback%2F&response_type=code';
+			AuthService.login42();
 		});
 	}
 }

@@ -1,43 +1,47 @@
-body {
-	background-color: #000000;
-	margin: 0;
-	padding: 0;
-	
-	display: flex;
-	flex-direction: column;
-	position: relative; /* For absolute positioning of nav elements */
+/* nav menus */
+
+.nav-menu {
+	position: fixed; 
+	top: 20px;
+	left: 2.5%;
+	cursor: pointer;
 }
 
-#content {
-	flex: 1;
-	display: flex;
-	justify-content: center; /* Center horizontally */
-	align-items: flex-start; /* Align to top */
-	padding: 20px;
-	box-sizing: border-box;
-	width: 100%;
+.login-menu {
+	position: fixed; 
+	top: 20px;
+	right: 2.5%;
+	cursor: pointer;
 }
 
-/* login and nav menus */
+#menu-notification-badge {
+	position: fixed; 
+	top: 45px;
+	right:2.3%;
+	z-index: 1001;
+}
 
 .menu-button {
 	position: fixed;
-	width: 25px;
-	height: 25px;
+	width: 35px;
+	height: 35px;
 	background-color: rgba(255, 255, 255, 0.1);
 	backdrop-filter: blur(8px);
-	border-radius: 12px;
+	border-radius: 18px;
 	box-shadow: 0 4px 30px rgba(255, 255, 255, 0.1);
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	transition: all 0.3s ease;
 	overflow: hidden;
-	cursor: pointer;
-	z-index: 1000; /* Ensure menu stays on top */
+	z-index: 1000;
 }
 
 .menu-button.expanded {
 	width: 150px;
 	height: auto;
+	cursor: default;
+	flex-direction: column;
+	align-items: center;
+
 }
 
 .menu-buttons {
@@ -45,20 +49,52 @@ body {
 	flex-direction: column;
 	gap: 8px;
 	padding: 8px;
-	margin-top: 25px;
 }
 
 .menu-button.expanded .menu-buttons {
 	display: flex;
 }
 
+#user-icon {
+    object-fit: cover;
+}
+
 .menu-button .menu-icon {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: 2px;
+	margin-left: 2px;
+}
+
+
+/* 
+
+.game-button {
+    position: relative;
+    border-width: 2px;
+    transition: all 0.2s ease;
+    text-align: left;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.game-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px #878080;
+    background-color: rgba(230, 233, 236, 0.427);
+}
+
+*/
+
+.menu-button.expanded .menu-icon {
+	margin: 0 auto;
+	margin-top: 15px;
+	width: 40px;
+	height: 40px;
 }
 
 .menu-button .nav-button {
@@ -70,36 +106,47 @@ body {
 	background-color: rgba(255, 255, 255, 0.1);
 	text-align: center;
 	cursor: pointer;
-	transition: background-color 0.3s ease;
-}
 
-.menu-button.expanded .menu-icon {
-    margin: 0 auto;
-	margin-top: 15px;
-    width: 40px;
-    height: 40px;
+	border-width: 2px;
+    transition: all 0.2s ease;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+
 }
 
 .menu-button .nav-button:hover {
 	background-color: rgba(255, 255, 255, 0.2);
+
+    transform: translateY(-5px);
+    box-shadow: 0 0 5px #878080;
+    /* background-color: rgba(230, 233, 236, 0.427); */
 }
 
-.menu-icon {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
+.menu-user {
+	color: rgb(157, 148, 148);
+	font-family: Arial, sans-serif;
+	font-size: 14px;
+	padding: 5px;
+	text-align: center;
+	cursor: default;
 }
 
-.nav-menu {
-	top: 20px;
-	left: 20px;
+.nav-menu-separator {
+	padding: 14px;
+	text-align: center;
+	cursor: default;
 }
 
-.login-menu {
-	top: 20px;
-	right: 20px;
-	left: auto !important;
+.alert-info {
+    --bs-alert-color: aliceblue;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border-radius: 18px;
+    box-shadow: 0 4px 30px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+/* login view / card */
 
 .auth-form {
 	display: flex;
@@ -138,7 +185,6 @@ body {
 	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); 
 	color: white;
 	cursor: pointer;
-	transition: background-color 0.3s ease;
 	font-size: 16px;
 	text-align: center;
 	display: flex;
@@ -175,7 +221,7 @@ body {
 
 /* tournament */
 
-.tournament-container {
+#tournament-container {
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
@@ -189,106 +235,199 @@ body {
 	border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.tournament-actions {
-	display: flex;
-	gap: 1rem;
-	margin-top: 1rem;
-	margin-bottom: 1rem;
-}
-
-.tournament-button {
-	padding: 0.5rem 1rem;
-	background: rgba(0, 0, 0, 0.5);
-	backdrop-filter: blur(8px);
-	border-radius: 8px;
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-	color: white;
-	cursor: pointer;
-	transition: background-color 0.3s ease;
-}
-
-.tournament-button:hover {
-	background-color: rgba(255, 255, 255, 0.2);
-}
-
-.tournaments-list h2,
-.tournament-status h2 {
-	color: rgb(157, 148, 148);
-	font-family: Arial, sans-serif;
-	margin-bottom: 1rem;
-}
-
-.tournament-item {
-	padding: 1rem;
-	margin-bottom: 0.5rem;
-	background: rgba(0, 0, 0, 0.5);
-	backdrop-filter: blur(8px);
-	border-radius: 8px;
-	border: 1px solid rgba(255, 255, 255, 0.2);
-	cursor: pointer;
-	transition: all 0.3s ease;
-}
-
-.tournament-item:hover {
-	background-color: rgba(255, 255, 255, 0.1);
-}
-
+.tournament-item.active,
 .tournament-item.selected {
-	background-color: rgba(255, 255, 255, 0.2);
-	border-color: rgba(255, 255, 255, 0.4);
+	background-color: rgba(255, 255, 255, 0.2) !important;
+	border-left: 3px solid #a4a8ae !important;
+	font-weight: 500;
 }
 
-.tournament-info {
-	display: flex;
-	justify-content: space-between;
-	color: rgb(157, 148, 148);
-	font-family: Arial, sans-serif;
+.tournament-join-btn {
+	display: block;
+	width: 150px !important;
+
 }
 
-#tournament-state {
-    color: rgb(157, 148, 148);
-    text-align: center;
-    padding: 2rem;
-}
-
-.no-tournaments {
-	color: rgb(157, 148, 148);
-	text-align: center;
-	padding: 2rem;
+.tournament-join-btn:hover {
+	background-color: rgba(255, 255, 255, 0.2) !important;
+	color: white !important;
+	box-shadow: 0 0 8px rgba(255, 255, 255, 0.3) !important;
 }
 
 .tournament-back-button {
-    display: block;
-    margin: 2rem auto;    
+	display: block;
+	margin: 2rem auto;
 }
 
-.tournament-history h2 {
-    color: rgb(157, 148, 148);
-    font-family: Arial, sans-serif;
-    margin-bottom: 1rem;
+.match-players {
+	color: #e0e0e0; 
+	font-weight: 500;
 }
 
-/* Add this to your style.css file */
-.scrollable-tournaments {
-    max-height: 200px;
-    overflow-y: auto;
+/* profile */
+
+.profile-pic {
+	width: 200px; 
+	height: 200px; 
+	border: 5px solid #a19a9aa3; 
+	border-radius: 50%; 
+	box-shadow: 0 0 10px rgba(77, 76, 76, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;	
 }
 
-.scrollable-tournaments .tournament-item {
-    padding-right: 15px;
+.profile-pic img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover; 
 }
 
-
-.scrollable-tournaments::-webkit-scrollbar {
-    width: 0px;
+.nav-item {
+	padding-bottom: 20px;
 }
 
-.scrollable-tournaments::-webkit-scrollbar-track {
-    background: transparent;
+#profile-top-container {
+	padding: 20px;
 }
 
-.scrollable-tournaments::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 5px;
+.profile-info h2 {
+	color: #ffffff;
+	padding-top: 10px; 
+	padding-bottom: 10px;
+}
+
+.profile-info p {
+	color: #ffffff;
+}
+
+.nav-tabs .nav-link {
+	color: rgb(157, 148, 148); 
+	background-color: rgba(255, 255, 255, 0.1); 
+	border: 1px solid rgba(255, 255, 255, 0.2); 
+	border-radius: 8px; 
+	margin-right: 5px;
+	margin-left: 5px; 
+	transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-tabs .nav-link.active {
+	color: #ffffff; 
+	background-color: rgba(255, 255, 255, 0.2); 
+	border-color: rgba(255, 255, 255, 0.3); 
+}
+
+.tab-content {
+	background-color: rgba(255, 255, 255, 0.1); 
+	border: 1px solid rgba(255, 255, 255, 0.2); 
+	border-radius: 12px;
+	color: #ffffff; 
+}
+
+.btn {
+	color: rgb(157, 148, 148); 
+	background-color: rgba(255, 255, 255, 0.1); 
+	border: 1px solid rgba(255, 255, 255, 0.2); 
+	border-radius: 12px; 
+}
+
+.card {
+    --bs-card-border-color: none;
+    --bs-card-cap-bg: none;
+    --bs-card-bg: none;
+    color: none;
+}
+
+.table-light {
+    --bs-table-color: none;
+    --bs-table-bg: #1a1a1a;
+    --bs-table-accent-bg: transparent;
+	border-color: #1a1a1a;
+}
+
+.table-primary {
+    background-image: linear-gradient(20deg, #2b80ffc2 0%, #f03633aa 100%) !important;
+    background-color: transparent !important;
+    --bs-table-bg: transparent;
+    border-color: #1a1a1a;
+}
+
+.table-danger {
+    background-image: linear-gradient(20deg, #f03633aa 0%, #2b80ffc2 100%) !important;
+    background-color: transparent !important;
+    --bs-table-bg: transparent;
+    border-color: #1a1a1a;
+}
+
+#friend-image-container {
+	width: 40px;
+	height: 40px; 
+	overflow: hidden; 
+	border-radius: 50%; 
+	position: relative;
+}
+
+#friend-image {
+    top: 0;
+    left: 0;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+/* Friends Tab Specific Styling */
+#friends .list-group-item {
+    background-color: #76767633;
+    border-color: rgb(130 130 130 / 9%) !important;
+    border-radius: 5px !important;
+	color: #b0cce8;
+}
+
+#friends .list-group-item a {
+    color: #d6cdcd;
+}
+
+#friends .list-group-item-action:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+#friends .card-header.bg-light {
+    background-color: #1a1a1a !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+#friends .list-group-flush > .list-group-item {
+    border-width: 1px 0;
+    border-radius: 0;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+#friends .badge {
+    font-size: 0.8rem;
+    padding: 0.4em 0.8em;
+}
+
+#friends .btn-success {
+    background-color: rgba(25, 207, 68, 0.595);
+    border-color: rgba(255, 255, 255, 0.1);
+	color: #e0e0e0;
+}
+
+#friends .btn-danger {
+    background-color:  rgba(221, 26, 45, 0.595);
+    border-color: rgba(255, 255, 255, 0.1);
+	color: #e0e0e0;
+}
+
+#friends .btn-outline-secondary {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+#friends .btn:hover {
+	border-color: #e0e0e0;
+    transition: all 0.2s ease;
 }

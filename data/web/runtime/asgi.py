@@ -15,7 +15,10 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.sessions import SessionMiddlewareStack
 from channels.auth import AuthMiddlewareStack # authetication verification for socket connections
-from pong.routing import websocket_urlpatterns
+from pong.routing import pong_websocket_urlpatterns
+from backend.routing import backend_websocket_urlpatterns
+
+websocket_urlpatterns = pong_websocket_urlpatterns + backend_websocket_urlpatterns
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
@@ -27,32 +30,3 @@ application = ProtocolTypeRouter({
 })
 
 
-# # 1. Simple (no auth)
-# from channels.routing import ProtocolTypeRouter, URLRouter
-# application = ProtocolTypeRouter({
-#     "websocket": URLRouter(websocket_urlpatterns),
-# })
-
-# # 2. Session-only
-# from channels.sessions import SessionMiddlewareStack
-# application = ProtocolTypeRouter({
-#     "websocket": SessionMiddlewareStack(
-#         URLRouter(websocket_urlpatterns)
-#     ),
-# })
-
-# # 3. Cookie-only
-# from channels.sessions import CookieMiddlewareStack
-# application = ProtocolTypeRouter({
-#     "websocket": CookieMiddlewareStack(
-#         URLRouter(websocket_urlpatterns)
-#     ),
-# })
-
-# # 4. Token-based
-# from channels.auth import TokenAuthMiddlewareStack
-# application = ProtocolTypeRouter({
-#     "websocket": TokenAuthMiddlewareStack(
-#         URLRouter(websocket_urlpatterns)
-#     ),
-# })

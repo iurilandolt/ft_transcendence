@@ -101,7 +101,7 @@ class PongGame():
 		for consumer in self.consumers:
 			await consumer.close()
 
-	def missing_players(self): # if we garuantee that we only players are always consumer[0] and consumer[1] we can check only for those positions
+	def missing_players(self): # if we garuantee that we our players are always consumer[0] and consumer[1] we can check only for those positions
 		consumer_usernames = [c.get_username() for c in self.consumers]
 		if (self.player1.player_id not in consumer_usernames and 
 			self.player2.player_id not in consumer_usernames):
@@ -165,7 +165,7 @@ class AiPongGame(PongGame):
 
 	def update_ai(self):
 		current_time = time.time()
-		if current_time - self.last_ai_update >= 0.30:
+		if current_time - self.last_ai_update >= 0.25:
 			output1 = self.net1.activate((self.paddleRight.y, self.ball.y, abs(self.paddleRight.x - self.ball.x)))
 			decision1 = output1.index(max(output1))
 			self.paddleRight.direction = 0 if decision1 == 0 else (-1 if decision1 == 1 else 1)

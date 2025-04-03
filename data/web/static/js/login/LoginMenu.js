@@ -1,70 +1,169 @@
 import { AuthService } from '../index/AuthService.js';
+import { ProfileView } from '../profile/ProfileView.js';
 
 export class LoginMenu extends BaseComponent {
-	constructor() {
-		super('static/html/login-menu.html'); 
-	}
+    constructor() {
+        super('/login-menu/');
+    }
 
-	async onIni() {
-		const menu = this.querySelector('.login-menu');
-		if (!menu) return;
+    async onIni() {
+		await this.contentLoaded;
+		this.menu = this.querySelector('.login-menu');
+		this.notificationBadge = document.getElementById('menu-notification-badge');
+		const loginClient = new LoginClient(this);
 
-		// Add menu button class
-		menu.classList.add('menu-button');
+        if (!this.menu) return;
+        
+        this.menu.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.menu.classList.toggle('expanded');
+			this.notificationBadge && (this.notificationBadge.style.opacity = this.menu.classList.contains('expanded') ? '0' : '1');
+        });
 
-		// Create a container for buttons
-		const buttonContainer = document.createElement('div');
-		buttonContainer.classList.add('menu-buttons');
+        document.addEventListener('click', () => {
+            this.menu.classList.remove('expanded');
+			if (this.notificationBadge) {this.notificationBadge.style.opacity = '1';}
+        });
+        
+        const logoutButton = this.querySelector('#logout-button');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async () => {
+                await AuthService.logout();
+            });
+        }
+    }
 
-		// Create buttons
-		const profileButton = this.createNavButton('PROFILE', '#/profile');
-		const loginButton = this.createNavButton('LOG IN', '#/login');
-		const logoutButton = this.createNavButton('LOG OUT', '#/home', () => AuthService.logout());
+	async reloadElements() {
+		
+		const response = await fetch('/login-menu/');
+		if (response.ok) {
+			const html = await response.text();
+			const tempDiv = document.createElement('div');
+			tempDiv.innerHTML = html;
+			
+			const newMenu = tempDiv.querySelector('.login-menu');
+			if (newMenu) {
+				if (this.menu) {this.menu.innerHTML = newMenu.innerHTML;}
 
-		// Add buttons to container
-		buttonContainer.appendChild(profileButton);
-
-		// Conditionally display login or logout button on initialization
-		const toggleButton = AuthService.isAuthenticated ? logoutButton : loginButton;
-		toggleButton.classList.add('toggle-button');
-		buttonContainer.appendChild(toggleButton);
-
-		// Append the container to the menu
-		menu.appendChild(buttonContainer);
-
-		// Toggle menu expansion and assign toggle button based on authentication state
-		menu.addEventListener('click', (e) => {
-			e.stopPropagation();
-			menu.classList.toggle('expanded');
-
-			// Remove existing toggle button if any
-			const existingToggleButton = buttonContainer.querySelector('.toggle-button');
-			if (existingToggleButton) {
-				buttonContainer.removeChild(existingToggleButton);
+				const newBadge = tempDiv.querySelector('#menu-notification-badge');
+				if (newBadge) {
+					if (this.notificationBadge) {
+						this.notificationBadge.innerHTML = newBadge.innerHTML;
+					}
+					else {
+						this.notificationBadge = newBadge;
+						this.menu.parentNode.insertBefore(this.notificationBadge, this.menu);
+					}
+				}
+				else if (!newBadge && this.notificationBadge) {
+					this.notificationBadge.remove();
+					this.notificationBadge = null;
+				}
 			}
 
-			// Conditionally assign the toggle button
-			const toggleButton = AuthService.isAuthenticated ? logoutButton : loginButton;
-			toggleButton.classList.add('toggle-button');
-			buttonContainer.appendChild(toggleButton);
-		});
+			const logoutButton = this.querySelector('#logout-button');
+			if (logoutButton) {
+				logoutButton.addEventListener('click', async () => {
+					await AuthService.logout();
+				});
+			}
 
-		// Close menu when clicking outside
-		document.addEventListener('click', () => {
-			menu.classList.remove('expanded');
-		});
+			if (Router.activeComponent instanceof ProfileView) {
+				if (Router.activeComponent.friendTab) {
+					Router.activeComponent.friendTab.reloadElements();
+				}
+			}
+		}
 	}
 
-	createNavButton(text, hash, onClick) {
-		const button = document.createElement('div');
-		button.classList.add('nav-button');
-		button.textContent = text;
-		button.addEventListener('click', () => {
-			window.location.hash = hash;
-			if (onClick) onClick();
-		});
-		return button;
-	}
 }
+
+class LoginClient {
+	constructor(loginView) {
+		this.loginView = loginView;
+		this.socket = new WebSocket(`wss://${window.location.host}/wss/login-menu/`);
+		this.setupSocketHandler();
+	}
+
+	setupSocketHandler() {
+		this.socket.onopen = () => {
+			this.socket.send(JSON.stringify({
+				action: "connect",
+			}));
+			this.pingInterval = setInterval(() => {
+				this.sendPing();
+			}, 30000);
+		};
+
+		this.socket.onmessage = (event) => {
+			
+			const data = JSON.parse(event.data);
+			switch(data.event) {
+				case 'pong':
+					this.loginView.reloadElements();
+					console.log(event.data);
+					break;
+				case 'notification':
+					this.loginView.reloadElements();
+					console.log(event.data);
+					break;
+				case 'tournament':
+					this.tournamentAlert();
+					console.log(event.data);
+					break;
+			}
+		};
+
+		this.socket.onclose = () => {
+			console.log('Login menu socket closed');
+            if (this.pingInterval) {
+                clearInterval(this.pingInterval);
+            }
+		};
+
+		this.socket.onerror = (error) => {
+			console.log('Login menu socket error', error);
+			this.socket.close();
+		}
+	}
+
+	tournamentAlert() {
+		if (this.socket && window.location.hash != '#/tournament') {
+			const container = document.getElementById('toastContainer');
+			if (!container) return;
+	
+			const alertDiv = document.createElement('div');
+			alertDiv.className = 'alert alert-info alert-dismissible fade show';
+			alertDiv.role = 'alert';
+			alertDiv.innerHTML = `
+			<div class="toast-header">
+				<strong class="me-auto">Tournament</strong>
+				<small class="text-body-secondary">update</small>
+			</div>
+			<div class="toast-body" style="cursor: pointer;">
+				Tournament Bracket Updated.
+			</div>
+			`;
+			container.appendChild(alertDiv);
+			alertDiv.addEventListener('click', function(e) {
+				window.location.hash = '#/tournament';
+				alertDiv.remove()
+			});
+
+			setTimeout(() => {
+				alertDiv.remove();
+			}, 7000);
+		}
+	}
+
+    sendPing() {
+        if (this.socket) {
+            this.socket.send(JSON.stringify({
+                action: "ping"
+            }));
+        }
+    }
+}
+
 
 customElements.define('login-menu', LoginMenu);

@@ -20,9 +20,7 @@ fclean:
 	docker volume rm srcs_web_data
 	docker volume rm srcs_db_data
 #	docker run --rm -v $(pwd)/data:/data alpine rm -rf /data/db
-	rm -rf data/db
-#	sudo rm -rf data/db
-#	sudo rm -rf data/web
+
 
 re: fclean all
 

@@ -15,12 +15,16 @@ class QuickLobby(AsyncWebsocketConsumer):
 	def get_username(self):
 		return self.scope["user"].username if self.scope["user"].is_authenticated else None
 
-
+	def get_user_id(self):
+		uuid = self.scope["user"].uuid if self.scope["user"].is_authenticated else None
+		return str(uuid) if uuid else None
+	
 	async def connect(self):
 		if not self.scope["user"].is_authenticated:
 			await self.close()
 			return
-		self.player_id = self.get_username()
+		#self.player_id = self.get_username()
+		self.player_id = self.get_user_id()
 
 		if ongoing_game := await GameDB.player_in_game(self.player_id):
 			
@@ -28,7 +32,7 @@ class QuickLobby(AsyncWebsocketConsumer):
 				'event': 'match_found',
 				'state': {
 					'game_url': f'wss/mpong/game/{ongoing_game}/',
-					'player_id': self.player_id
+					'player_id': self.get_username()
 				}
 			}
 			await self.accept()
@@ -61,21 +65,24 @@ class QuickLobby(AsyncWebsocketConsumer):
 
 	async def try_match_players(self):
 		if len(self.queued_players) >= 2:
-			players = list(self.queued_players.keys())[:2]
+			player_ids = list(self.queued_players.keys())[:2]
 			game_id = f"{self.generate_game_id()}"
 			
-			for i in range(len(players)):
-				player = self.queued_players[players[i]]
+			player_usernames = [self.queued_players[player_id].scope["user"].username 
+								for player_id in player_ids]
+			
+			for i in range(len(player_ids)):
+				player = self.queued_players[player_ids[i]]
 				match_data = {
 					'event': 'match_found',
 					'state': {
 						'game_id': game_id,
 						'game_url': f'wss/mpong/game/{game_id}/',
-						'player_id': players[i]  # Send the player ID specific to each consumer
+						'player_id': player_usernames[i]  
 					}
 				}
 				await player.send(json.dumps(match_data))
-				del self.queued_players[players[i]]
+				del self.queued_players[player_ids[i]]
 				await player.close()
 
 
@@ -102,16 +109,19 @@ class TournamentLobby(QuickLobby):
 			if ws.scope['url_route']['kwargs']['game_id'] == game_id][:2]
 		
 		if len(tournament_players) >= 2:
-			for player_id in tournament_players:
-				player = self.queued_players[player_id]
-				match_data = {
-					'event': 'match_found',
-					'state': {
-						'game_id': game_id,
-						'game_url': f'wss/mpong/game/{game_id}/',
-						'player_id': player_id  # Send the player ID specific to each consumer
+				tournament_usernames = [self.queued_players[player_id].scope["user"].username 
+										for player_id in tournament_players]
+				
+				for i, player_id in enumerate(tournament_players):
+					player = self.queued_players[player_id]
+					match_data = {
+						'event': 'match_found',
+						'state': {
+							'game_id': game_id,
+							'game_url': f'wss/mpong/game/{game_id}/',
+							'player_id': tournament_usernames[i] 
+						}
 					}
-				}
-				await player.send(json.dumps(match_data))
-				del self.queued_players[player_id]
-				await player.close()
+					await player.send(json.dumps(match_data))
+					del self.queued_players[player_id]
+					await player.close()

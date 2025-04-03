@@ -11,6 +11,7 @@ services:
       - "4443:443"
     volumes:
       - web_data:/ft_transcendence
+    restart: unless-stopped
       
   django:
     container_name: django
@@ -31,6 +32,7 @@ services:
       - db_user_psw
       - web_adm
       - web_adm_psw
+      - web_host
     restart: unless-stopped
 
   postgres:
@@ -88,3 +90,5 @@ secrets:
     file: ../secrets/web_adm.txt
   web_adm_psw:
     file: ../secrets/web_adm_psw.txt
+  web_host:
+    file: ../secrets/web_host.txt

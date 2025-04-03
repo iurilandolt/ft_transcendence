@@ -36,7 +36,7 @@ class TournamentManager:
 			except Exception as e:
 				logger.error(f'Error processing tournaments: {str(e)}')
 			
-			await asyncio.sleep(1)
+			await asyncio.sleep(5) # should be 1 :)
 
 
 	async def process_tournament(self, tournament : Tournament):

@@ -26,7 +26,9 @@ class BaseComponent extends HTMLElement {
 
 	async loadTemplate(template) {
 		try {
-			const response = await fetch(template);
+			const response = await fetch(template, {
+				method: 'GET'
+			});
 			if (response.status === 403) {
 				window.location.hash = '#/login';  // Redirect to login if forbidden
 				return;
@@ -49,40 +51,51 @@ customElements.define('base-component', BaseComponent);
 
 class Router {
 	static routes = {};
+	static activeComponent = null;
 
 	static subscribe(url, component) {
-		// Remove leading slash if present to normalize routes
 		url = url.replace(/^\//, '');
 		this.routes[url] = component;
 	}
 
+    static parseUrl(url) {
+        url = url.replace(/^\//, '');
+    
+        const parts = url.split('/');
+        const baseRoute = parts[0];
+        const param = parts.length > 1 ? parts[1] : null;
+        
+        return { baseRoute, param };
+    }
+
 	static go(url) {
-		// Remove leading slash if present
-		url = url.replace(/^\//, '');
-		const component = this.routes[url];
+		const { baseRoute, param } = this.parseUrl(url);
+		const component = this.routes[baseRoute];
+		
 		if (component) {
 			const content = document.getElementById('content');
 			if (content) {
 				content.innerHTML = "";
-				content.append(new component());
+				const componentInstance = new component(param);
+				this.activeComponent = componentInstance;
+				content.append(this.activeComponent);
 			} else {
 				console.error('Content element not found');
 			}
 		} else {
-			console.error(`No component found for route: ${url}`);
+			console.error(`No component found for route: ${baseRoute}`);
 		}
 	}
 
-	static init() {
-		const defaultRoute = 'home';
-		window.addEventListener('hashchange', () => {
-			// Extract page name after #/ and remove leading slash
-			const page = window.location.hash.slice(2).replace(/^\//, '') || defaultRoute;
-			this.go(page);
-		});
-		const currentHash = window.location.hash.slice(2).replace(/^\//, '');
-		this.go(currentHash || defaultRoute);
-	}
+    static init() {
+        const defaultRoute = 'home';
+        window.addEventListener('hashchange', () => {
+            const page = window.location.hash.slice(2) || defaultRoute;
+            this.go(page);
+        });
+        const currentHash = window.location.hash.slice(2);
+        this.go(currentHash || defaultRoute);
+    }
 }
 
 

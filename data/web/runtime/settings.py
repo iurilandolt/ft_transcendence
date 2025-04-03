@@ -50,24 +50,27 @@ SECRET_KEY = 'django-insecure-r3%a9xhfwbm8+2bq(%%_r77)%(-7s3xq_$$4g@0q9=%03xd(za
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost',
-    '10.12.5.1',
-    '10.12.*.*',
-    '*'
+    '*',
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+def generate_trusted_origins(base_ip, start, end, port):
+    origins = []
+    for j in range(start, end + 1):  # Third octet
+        for i in range(start, end + 1):  # Fourth octet
+            origins.append(f"https://{base_ip}.{j}.{i}:{port}")
+    return origins
+
+
+
 CSRF_TRUSTED_ORIGINS = [
-    'https://localhost:4443',
-    'https://172.18.*.*:4443',
-    'https://10.12.5.1:4443',  
-    'https://localhost:443',
-    'https://localhost',
-    'http://10.12.5.1:4443',   # Added HTTP version
-    'https://10.12.*.*:4443',  # Added wider subnet access
-    'http://10.12.*.*:4443'    # Added HTTP version for subnet
+	'https://localhost:4443',
 ]
+
+CSRF_TRUSTED_ORIGINS.extend(generate_trusted_origins('10.195', 1, 255, 4443))
+
+#CSRF_TRUSTED_ORIGINS.extend(generate_trusted_origins('10.12', 1, 255, 4443))
 
 SECURE_SSL_REDIRECT = True
 
@@ -89,6 +92,7 @@ INSTALLED_APPS = [
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
 	'django.contrib.sites',
+	'django.contrib.postgres',
 	'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -97,6 +101,7 @@ INSTALLED_APPS = [
 	'pong',
 	'tournaments',
 	'authservice',
+	'dashboard',
 ]
 
 AUTH_USER_MODEL = 'backend.User'
@@ -118,7 +123,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             BASE_DIR / 'templates',
-            BASE_DIR / 'templates', 'views',
+            # BASE_DIR / 'templates', 'views',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -204,6 +209,9 @@ STATICFILES_DIRS = [BASE_DIR / 'static',]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
@@ -225,3 +233,5 @@ SOCIALACCOUNT_PROVIDERS = {
 		},
 	}
 }
+
+WEB_HOST = read_secret('web_host')

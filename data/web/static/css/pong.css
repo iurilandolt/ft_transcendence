@@ -1,4 +1,77 @@
+/* Game Menu Styling */
+
+.pong-menu-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: rgb(49 49 49 / 48%);
+    border-radius: 15px;
+    box-shadow: 0 0 2px #878080;
+    backdrop-filter: blur(10px);
+
+}
+
 .pong-menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.game-button {
+    position: relative;
+    border-width: 2px;
+    transition: all 0.2s ease;
+    text-align: left;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.pong-menu-button {
+	--bs-btn-hover-border-color: #dddfe27e;
+}
+
+.game-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px #878080;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+
+.button-description {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-top: 5px;
+}
+
+.pong-lobby {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
+    padding: 15px;
+    width: 200px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 30px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.lobby-button {
+    width: 100%;
+    color: rgb(157, 148, 148);
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    text-align: center;
+    cursor: pointer;
+}
+
+/* .pong-menu {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
@@ -8,7 +81,6 @@
 	padding: 15px;
 	width: 200px;
 	background-color: rgba(255, 255, 255, 0.1);
-	/* backdrop-filter: blur(8px); */
 	border-radius: 12px;
 	box-shadow: 0 4px 30px rgba(255, 255, 255, 0.1);
 	border: 1px solid rgba(255, 255, 255, 0.2);
@@ -25,17 +97,15 @@
 	background-color: rgba(255, 255, 255, 0.1);
 	text-align: center;
 	cursor: pointer;
-	transition: background-color 0.3s ease;
-}
+} */
 
-.pong-menu-button:hover {
+/* .pong-menu-button:hover {
 	background-color: rgba(255, 255, 255, 0.2);
-}
+} */
 
-.pong-menu-button.hidden {
+/* .pong-menu-button.hidden {
 	display: none;
-}
-
+} */
 
 .lobby-status {
     color: rgb(157, 148, 148);
@@ -48,8 +118,10 @@
 .game-container {
     position: relative;
     margin: 0 auto;
+	/* animation: fadeIn 0.3s ease forwards; */
 }
-/*  */
+
+/* scoreboard */
 
 #score-board {
     position: relative;
@@ -58,14 +130,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 5px; /* Adjust padding to reduce space */
+    padding: 5px;
 }
 
 .scoreboard-container {
     display: flex;
     align-items: center;
     background-color: rgba(0, 0, 0, 0.5);
-    padding: 5px 10px; /* Adjust padding to reduce space */
+    padding: 5px 10px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
@@ -87,8 +159,8 @@
     font-family: 'Courier New', Courier, monospace;
     font-size: 16px;
     color: #fff;
-    margin: 5px 0; /* Adjust margin to reduce space */
-    padding: 10px; /* Adjust padding to reduce space */
+    margin: 5px 0;
+    padding: 10px;
 }
 
 .player-sets, .player-points {
@@ -105,15 +177,15 @@
 }
 
 .set-indicator.won {
-    background-color: gold; /* Set color to gold for won sets */
+    background-color: gold;
 }
 
 .point-indicator.won.left {
-    background-color: #0000ff; /* Set color to blue for left player */
+    background-color: #0000ff;
 }
 
 .point-indicator.won.right {
-    background-color: #ff0000; /* Set color to red for right player */
+    background-color: #ff0000;
 }
 
 .winner-text {

@@ -1,0 +1,33 @@
+
+{% if is_authenticated and friends.pending_received %}
+<span id="menu-notification-badge" class="badge bg-danger rounded-pill ms-1">{{ friends.pending_received|length }}</span>
+{% endif %}
+
+{% if is_authenticated %}
+<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" id="toastContainer" style="z-index: 1080; pointer-events: auto;">
+</div>
+{% endif %}
+
+<div class="menu-button login-menu">
+    {% if is_authenticated %}
+        <img src="{{ profile_pic }}" alt="User Profile" class="menu-icon" id="user-icon">
+    {% else %}
+        <img src="/static/images/nologin-thumb.png" alt="No Login" class="menu-icon" id="login-icon">
+    {% endif %}
+    
+    <div class="menu-buttons">
+		<div class="menu-user">{{ username }}</div>
+        {% if is_authenticated %}
+            <div class="nav-button" onclick="window.location.hash='#/profile'">PROFILE
+				{% if friends.pending_received %}
+				<span class="badge bg-danger rounded-pill ms-1">{{ friends.pending_received|length }}</span>
+				{% endif %}
+			</div>
+
+            <div class="nav-button" id="logout-button">LOG OUT</div>
+        {% else %}
+            <div class="nav-button" onclick="window.location.hash='#/login'">LOG IN</div>
+        {% endif %}
+    </div>
+</div>
+

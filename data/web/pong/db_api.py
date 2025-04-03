@@ -13,8 +13,8 @@ class GameDB:
 		return await database_sync_to_async(OngoingGame.update_score)(game_id, player1_sets, player2_sets)
 
 	@staticmethod
-	async def player_in_game(username: str):
-		return await database_sync_to_async(OngoingGame.player_in_game)(username)
+	async def player_in_game(player_id: str):
+		return await database_sync_to_async(OngoingGame.player_in_game)(player_id)
 	
 	@staticmethod
 	async def delete_game(game_id: str):

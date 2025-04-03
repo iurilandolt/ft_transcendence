@@ -153,7 +153,7 @@ export class Ball {
 		this.position = { x: 0, y: 0 };
 		this.size = 0;
 		this.direction = { x: 0, y: 0 };
-		this.rotationSpeed = 0.01;
+		this.rotationSpeed = 0.10;
 	}
 	
 	createMesh(scene, x, y, size, color = 0xffffff) {

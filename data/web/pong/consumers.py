@@ -20,13 +20,17 @@ class SinglePongConsumer(AsyncWebsocketConsumer):
 	
 	def get_username(self):
 		return self.scope["user"].username if self.scope["user"].is_authenticated else None
+	
+	def get_user_id(self):
+		return self.scope["user"].uuid if self.scope["user"].is_authenticated else None
 
 
 	async def connect(self):
 		if not self.scope["user"].is_authenticated:
 			await self.close()
 			return
-		self.id = self.get_username()
+		# self.id = self.get_username()
+		self.id = self.get_user_id()
 		if self.id in self.active_games:
 			await self.close()
 			return
@@ -102,14 +106,15 @@ class MultiPongConsumer(SinglePongConsumer):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-
-
+		
+	
 	async def connect(self):
 		if not self.scope["user"].is_authenticated:
 			await self.close()
 			return
 		self.game_id = self.scope['url_route']['kwargs']['game_id']
-		self.player_id = self.get_username()
+		#self.player_id = self.get_username()
+		self.player_id = self.get_user_id()
 		await self.accept()
 
 
@@ -159,7 +164,8 @@ class MultiPongConsumer(SinglePongConsumer):
 					if (winner := game_entry['game'].scoreBoard.end_match()):
 						await GameDB.complete_game(game_entry['game'].game_id, winner.player_id)
 					else:
-						await GameDB.complete_game(game_entry['game'].game_id, self.player_id)
+						#await GameDB.complete_game(game_entry['game'].game_id, self.player_id)
+						await GameDB.complete_game(game_entry['game'].game_id, self.scope["user"].username)
 					await GameDB.delete_game(self.game_id)
 					del self.active_games[self.game_id]
 
@@ -244,7 +250,13 @@ class AIConsumer(SinglePongConsumer):
 			if not self.scope["user"].is_authenticated:
 				await self.close()
 				return
-			
+
+			# self.id = self.get_username()
+			self.id = self.get_user_id()
+			if self.id in self.active_games:
+				await self.close()
+				return
+
 			if self.id not in self.active_games:
 				self.active_games[self.id] = self.id
 			else:

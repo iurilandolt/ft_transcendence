@@ -18,4 +18,5 @@ Router.subscribe('register', RegisterView);
 Router.subscribe('login', LoginView);
 
 
+await AuthService.init();
 Router.init();

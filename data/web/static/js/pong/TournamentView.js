@@ -2,77 +2,49 @@ import { AuthService } from '../index/AuthService.js';
 import { MultiPongGame, TournamentLobby } from './SinglePongGame.js';
 
 export class TournamentView extends BaseComponent {
-    constructor() {
-        super('/tournament-view/');
-        this.activeGames = new Set();
-    }
+	constructor() {
+		super('/tournament-view/');
+		this.activeGames = new Set();
+	}
 
-    async onIni() {
-        await this.contentLoaded;
-        const element = this.getElementById("tournament-view");
-        if (!element) return;
-        
-        const menu = new TournamentMenu(element, this);
-        await menu.render();
-        this.pollInterval = setInterval(() => menu.poll(), 5000);
-    }
+	async onIni() {
+		await this.contentLoaded;
+		const element = this.getElementById("tournament-view");
+		if (!element) return;
+		
+		const menu = new TournamentMenu(element, this);
+		await menu.initialize();
+		this.pollInterval = setInterval(() => menu.poll(), 5000);
+	}
 
-    registerGame(game) {
-        this.activeGames.add(game);
-    }
+	registerGame(game) {
+		this.activeGames.add(game);
+	}
 
-    unregisterGame(game) {
-        this.activeGames.delete(game);
-    }
+	unregisterGame(game) {
+		this.activeGames.delete(game);
+	}
 
-    onDestroy() {
-        clearInterval(this.pollInterval);
-        for (const game of this.activeGames) {
-            game.cleanup();
-        }
-        this.activeGames.clear();
-    }
+	onDestroy() {
+		clearInterval(this.pollInterval);
+		for (const game of this.activeGames) {
+			game.cleanup();
+		}
+		this.activeGames.clear();
+	}
 }
 
 class TournamentMenu {
-    constructor(parent, view) {
-        this.parent = parent;
-        this.view = view;
-        this.errorDiv = null;
-        this.menuDiv = null;
-    }
+	constructor(parent, view) {
+		this.parent = parent;
+		this.view = view;
+		this.errorDiv = null;
+		this.menuDiv = null;
+	}
 
-	async render() {
-		this.menuDiv = document.createElement('div');
-		this.menuDiv.classList.add('tournament-container');
-		this.menuDiv.innerHTML = `
-			<div id="tournament-content">
-				<div class="tournament-history">
-					<h2>Previous Tournament</h2>
-					<div id="last-tournament">
-						<div class="no-history">no history...</div>
-					</div>
-				</div>
-				<div class="tournaments-list">
-					<h2>Active Tournaments</h2>
-					<div id="tournaments-container" class="scrollable-tournaments"></div>
-				</div>
-				<div class="tournament-actions">
-					<button id="create-tournament" class="tournament-button">Create Tournament</button>
-					<button id="join-tournament" class="tournament-button">Join Tournament</button>
-					<button id="leave-tournament" class="tournament-button hidden">Leave Tournament</button>
-					<div id="tournament-errors" class="error-messages"></div>
-				</div>
-				<div class="tournament-status">
-					<h2>Tournament Status</h2>
-					<div id="tournament-state">Not in tournament</div>
-				</div>
-			</div>`;
-	
-		// clear parent and append menu
-		this.parent.innerHTML = '';
-		this.parent.appendChild(this.menuDiv);
-		this.errorDiv = this.menuDiv.querySelector('#tournament-errors');
+	async initialize() {
+		this.menuDiv = this.parent.querySelector('.container-fluid');
+		this.errorDiv = this.parent.querySelector('#tournament-errors');
 		this.setupEventListeners();
 		await this.poll();
 	}
@@ -83,65 +55,72 @@ class TournamentMenu {
 	}
 
 	setupEventListeners() {
-		const createBtn = this.menuDiv.querySelector("#create-tournament");
-		const joinBtn = this.menuDiv.querySelector("#join-tournament");
-		const leaveBtn = this.menuDiv.querySelector("#leave-tournament");
+		const createBtn = this.parent.querySelector("#create-tournament");
+		const joinBtn = this.parent.querySelector("#join-tournament");
+		const leaveBtn = this.parent.querySelector("#leave-tournament");
 
 		createBtn?.addEventListener('click', () => this.createTournament());
 		joinBtn?.addEventListener('click', () => this.joinTournament());
 		leaveBtn?.addEventListener('click', () => this.leaveTournament());
 	}
 
-    async fetchTournaments() {
-        const response = await fetch('/tournament-view/list/', {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        const data = await response.json();
-        this.updateTournamentState(data);
-        this.updateTournamentsList(data.tournaments);
-    }
+	async fetchTournaments() {
+		const response = await fetch('/tournament-view/list/', {
+			method: 'GET',
+		});
+		const data = await response.json();
+		this.updateTournamentState(data);
+		this.updateTournamentsList(data.tournaments);
+	}
 
 	updateTournamentState(data) {
-			const stateDiv = this.menuDiv.querySelector("#tournament-state");
-			if (!stateDiv) return;
+		const stateDiv = this.parent.querySelector("#tournament-state");
+		if (!stateDiv) return;
 
-			if (data.in_tournament && data.current_tournament) {
-				const t = data.current_tournament;
-				let stateHTML = `
-					<div>Tournament ID: ${data.current_tournament_id}</div>
-					<div>Status: ${t.status}</div>
-					${t.status === 'IN_PROGRESS' ? `<div>Round: ${t.current_round + 1}</div>` : ''}
-					<div>Players: ${t.players.join(', ')}</div>
-				`;
+		if (data.in_tournament && data.current_tournament) {
+			const t = data.current_tournament;
+			let stateHTML = `
+				<div class="mb-2">Tournament ID: <span class="badge bg-secondary">${data.current_tournament_id}</span></div>
+				<div class="mb-2">Status: <span class="badge bg-secondary">${t.status}</span></div>
+				${t.status === 'IN_PROGRESS' ? `<div class="mb-2">Round: <span class="badge bg-success">${t.current_round + 1}</span></div>` : ''}
+				<div class="mb-3">Players: ${t.players.join(', ')}</div>
+			`;
 
-				if (t.status === 'IN_PROGRESS' && t.rounds.length > 0 && t.current_round < t.rounds.length) {
-					const currentRoundMatches = t.rounds[t.current_round];
-					stateHTML += this.renderCurrentRoundMatches(currentRoundMatches);
-				}
-
-				stateDiv.innerHTML = stateHTML;
-				this.setupMatchButtons();
-			} else {
-				stateDiv.innerHTML = 'Not in tournament';
+			if (t.status === 'IN_PROGRESS' && t.rounds.length > 0 && t.current_round < t.rounds.length) {
+				const currentRoundMatches = t.rounds[t.current_round];
+				stateHTML += this.renderCurrentRoundMatches(currentRoundMatches);
 			}
+
+			stateDiv.innerHTML = stateHTML;
+			this.setupMatchButtons();
+			
+			const leaveBtn = this.parent.querySelector("#leave-tournament");
+			if (leaveBtn) 
+				leaveBtn.classList.remove('d-none');
+		} else {
+			stateDiv.innerHTML = '<div class="text-secondary">Not in tournament</div>';
+			
+
+			const leaveBtn = this.parent.querySelector("#leave-tournament");
+			if (leaveBtn) 
+				leaveBtn.classList.add('d-none');
 		}
+	}
 
 	async fetchTournamentHistory() {
 		const response = await fetch('/tournament-view/history/', {
 			method: 'GET',
-			headers: { 'Content-Type': 'application/json' }
 		});
 		const data = await response.json();
 		this.updateTournamentHistory(data);
 	}
 	
 	updateTournamentHistory(data) {
-		const historyDiv = this.menuDiv.querySelector("#last-tournament");
+		const historyDiv = this.parent.querySelector("#last-tournament");
 		if (!historyDiv) return;
 	
 		if (!data.has_history) {
-			historyDiv.innerHTML = '<div class="no-tournaments">No tournament history</div>';
+			historyDiv.innerHTML = '<div class="text-secondary">No tournament history</div>';
 			return;
 		}
 	
@@ -151,183 +130,183 @@ class TournamentMenu {
 			: '🏆 Tournament Winner!';
 	
 		historyDiv.innerHTML = `
-			<div class="tournament-item">
-				<div class="tournament-info">
-					<span>ID: ${t.id}</span>
-					<span>Winner: ${t.winner}</span>
-				</div>
-				<div class="tournament-info">
-					<span>${userStatus}</span>
+			<div class="card bg-dark bg-opacity-25 border-secondary">
+				<div class="card-body p-3">
+					<div class="d-flex justify-content-between mb-2">
+						<span>ID: <span class="badge bg-secondary">${t.id}</span></span>
+						<span>Winner: <span class="badge bg-success">${t.winner}</span></span>
+					</div>
+					<div class="text-center">
+						<span class="${t.elimination_round ? 'text-warning' : 'text-success'}">${userStatus}</span>
+					</div>
 				</div>
 			</div>
 		`;
 	}
 
 	async joinTournamentMatch(gameId) {
-		// remove the menu completely
 		this.parent.innerHTML = '';
 		
-		// create wrapper for game and button
 		const wrapper = document.createElement('div');
-		wrapper.classList.add('tournament-game-wrapper');
+		wrapper.classList.add('tournament-game-wrapper', 'h-100', 'd-flex', 'flex-column');
 		this.parent.appendChild(wrapper);
 		
-		// create game container
 		const gameContainer = document.createElement('div');
-		gameContainer.classList.add('tournament-game-container');
+		gameContainer.classList.add('tournament-game-container', 'flex-grow-1', 'mb-3');
 		wrapper.appendChild(gameContainer);
 		
-		// create lobby in the game container
-		const tournamentLobby = new TournamentLobby(gameContainer, this.view, gameId);
-		
-		// create back button after game container
 		const backButton = document.createElement('button');
 		backButton.textContent = "Back to Tournament";
-		backButton.classList.add('tournament-button', 'tournament-back-button'); 
+		backButton.classList.add('btn', 'btn-outline-light', 'tournament-back-button'); 
 		wrapper.appendChild(backButton);
 		
 		backButton.addEventListener('click', () => {
-			// remove everything and reload tournament view
 			this.view.activeGames.forEach(game => game.cleanup());
-			this.view.activeGames.clear();	
-            window.location.reload();
+			this.view.activeGames.clear();  
+			window.location.reload();
 		});
 		
+		const tournamentLobby = new TournamentLobby(gameContainer, this.view, gameId);
 		tournamentLobby.startLobby();
 	}
 
-    renderCurrentRoundMatches(matches) {
-        return `
-            <h3>Current Round Matches</h3>
-            <div class="tournament-matches">
-                ${matches.map(match => this.renderMatch(match)).join('')}
-            </div>
-        `;
-    }
+	renderCurrentRoundMatches(matches) {
+		return `
+			<h5 class="border-bottom pb-2 mb-3">Current Round Matches</h5>
+			<div class="tournament-matches">
+				${matches.map(match => this.renderMatch(match)).join('')}
+			</div>
+		`;
+	}
 
-    renderMatch(match) {
-        return `
-            <div class="tournament-match ${match.status.toLowerCase()}">
-                <div class="match-players">
-                    ${match.player1 || 'TBD'} vs ${match.player2 || 'TBD'}
-                </div>
-                <div class="match-status">
-                    ${match.status !== 'PENDING' ? `Status: ${match.status}` : ''}
-                    ${match.winner ? `Winner: ${match.winner}` : ''}
-                </div>
-                ${match.is_player_match && match.status === 'PENDING' ? `
-                    <button class="join-match-button tournament-button" 
-                            data-game-id="${match.game_id}">
-                        Join Match
-                    </button>
-                ` : ''}
-            </div>
-        `;
-    }
+	renderMatch(match) {
+		let statusClass = "bg-secondary";
+		if (match.status === "COMPLETED") statusClass = "bg-success";
+		if (match.status === "IN_PROGRESS") statusClass = "bg-primary";
+		return `
+			<div class="card bg-dark bg-opacity-25 border-secondary mb-2">
+				<div class="card-body p-3">
+					<div class="d-flex justify-content-between align-items-center mb-2">
+						<div class="match-players">${match.player1 || 'TBD'} vs ${match.player2 || 'TBD'}</div>
+						<span class="badge ${statusClass}">${match.status}</span>
+					</div>
+					${match.winner ? `<div class="text-success mb-2">Winner: ${match.winner}</div>` : ''}
+					${match.is_player_match && match.status === 'PENDING' ? `
+						<button class="join-match-button btn btn-sm btn-outline-light w-100 tournament-join-btn" 
+								data-game-id="${match.game_id}">
+							Join Match
+						</button>
+					` : ''}
+				</div>
+			</div>
+		`;
+	}
 
-    setupMatchButtons() {
-        this.menuDiv.querySelectorAll('.join-match-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const gameId = button.dataset.gameId;
-                this.joinTournamentMatch(gameId);
-            });
-        });
-    }
+	setupMatchButtons() {
+		this.parent.querySelectorAll('.join-match-button').forEach(button => {
+			button.addEventListener('click', () => {
+				const gameId = button.dataset.gameId;
+				this.joinTournamentMatch(gameId);
+			});
+		});
+	}
 
-    updateTournamentsList(tournaments) {
-        const container = this.menuDiv.querySelector("#tournaments-container");
-        if (!container) return;
+	updateTournamentsList(tournaments) {
+		const container = this.parent.querySelector("#tournaments-container");
+		if (!container) return;
 
-        container.innerHTML = tournaments?.length 
-            ? tournaments.map(t => `
-                <div class="tournament-item" data-tournament-id="${t.tournament_id}">
-                    <div class="tournament-info">
-                        <span>ID: ${t.tournament_id}</span>
-                        <span>Status: ${t.status}</span>
-                        <span>Players: ${t.player_count}/${t.max_players}</span>
-                    </div>
-                </div>
-            `).join('')
-            : '<div class="no-tournaments">No active tournaments</div>';
+		if (tournaments?.length) {
+			container.innerHTML = tournaments.map(t => `
+				<div class="list-group-item tournament-item bg-dark bg-opacity-50 border-0" data-tournament-id="${t.tournament_id}">
+					<div class="d-flex justify-content-between align-items-center">
+						<span>ID: <span class="badge bg-secondary">${t.tournament_id}</span></span>
+						<span class="badge ${t.status === 'WAITING' ? 'bg-warning' : t.status === 'IN_PROGRESS' ? 'bg-primary' : 'bg-success'}">${t.status}</span>
+						<span>Players: <span class="badge bg-info">${t.player_count}/${t.max_players}</span></span>
+					</div>
+				</div>
+			`).join('');
+		} else {
+			container.innerHTML = '<div class="list-group-item bg-dark bg-opacity-50 border-0 text-secondary">No active tournaments</div>';
+		}
 
 		container.querySelectorAll('.tournament-item').forEach(item => {
 			item.addEventListener('click', () => {
-				// remove last
+	
 				container.querySelectorAll('.tournament-item').forEach(el => 
-					el.classList.remove('selected'));
-				// add new
-				item.classList.add('selected');
+					el.classList.remove('active'));
+	
+				item.classList.add('active');
 			});
 		});
-    }
+	}
 
-    async createTournament() {
-        this.clearError();
-        const response = await fetch('tournament-view/create/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': AuthService.getCsrfToken(),
-            },
-            body: JSON.stringify({ action: 'create' })
-        });
-        
-        const data = await response.json();
-        if (!this.handleError(response, data)) {
-            await this.fetchTournaments();
-        }
-    }
+	async createTournament() {
+		this.clearError();
+		const response = await fetch('tournament-view/create/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': AuthService.getCsrfToken(),
+			},
+			body: JSON.stringify({ action: 'create' })
+		});
+		
+		const data = await response.json();
+		if (!this.handleError(response, data)) {
+			await this.fetchTournaments();
+		}
+	}
 
-    async joinTournament() {
-        this.clearError();
-        const selectedRow = this.menuDiv.querySelector('.selected');
-        if (!selectedRow) return;
+	async joinTournament() {
+		this.clearError();
+		const selectedRow = this.parent.querySelector('.active');
+		if (!selectedRow) return;
 
-        const tournamentId = selectedRow.dataset.tournamentId;
-        const response = await fetch('tournament-view/join/', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': AuthService.getCsrfToken(),
-            },
-            body: JSON.stringify({ tournament_id: tournamentId })
-        });
-        
-        const data = await response.json();
-        if (!this.handleError(response, data)) {
-            await this.fetchTournaments();
-        }
-    }
+		const tournamentId = selectedRow.dataset.tournamentId;
+		const response = await fetch('tournament-view/join/', {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': AuthService.getCsrfToken(),
+			},
+			body: JSON.stringify({ tournament_id: tournamentId })
+		});
+		
+		const data = await response.json();
+		if (!this.handleError(response, data)) {
+			await this.fetchTournaments();
+		}
+	}
 
-    async leaveTournament() {
-        this.clearError();
-        const response = await fetch('tournament-view/leave/', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': AuthService.getCsrfToken(),
-            }
-        });
-        
-        const data = await response.json();
-        if (!this.handleError(response, data)) {
-            await this.fetchTournaments();
-        }
-    }
+	async leaveTournament() {
+		this.clearError();
+		const response = await fetch('tournament-view/leave/', {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': AuthService.getCsrfToken(),
+			}
+		});
+		
+		const data = await response.json();
+		if (!this.handleError(response, data)) {
+			await this.fetchTournaments();
+		}
+	}
 
-    clearError() {
-        if (this.errorDiv) {
-            this.errorDiv.textContent = '';
-        }
-    }
+	clearError() {
+		if (this.errorDiv) {
+			this.errorDiv.textContent = '';
+		}
+	}
 
-    handleError(response, data) {
-        if (!response.ok && this.errorDiv) {
-            this.errorDiv.textContent = data.message;
-            return true;
-        }
-        return false;
-    }
+	handleError(response, data) {
+		if (!response.ok && this.errorDiv) {
+			this.errorDiv.textContent = data.message;
+			return true;
+		}
+		return false;
+	}
 }
 
 customElements.define('tournament-view', TournamentView);
