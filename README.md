@@ -82,10 +82,12 @@ graph LR
     Tournament --> GameServer
 ```
 ### Colaborators
-## Collaborators
 
 [@iurilandolt](https://github.com/iurilandolt) 
+
 [@goncalo1021pt](https://github.com/goncalo1021pt) 
+
 [@AndrePortfolio](https://github.com/AndrePortfolio) 
+
 [@Ekkoz897](https://github.com/Ekkoz897) 
 
