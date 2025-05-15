@@ -51,6 +51,13 @@ ft_transcendence is a full-stack web application that reimagines the classic Pon
 - **Reverse Proxy:** Nginx
 - **Containerization:** Docker + Docker Compose
 
+### Screenshots
+![1](screenshots/Screenshot%20from%202025-03-14%2018-12-23.png)
+![2](screenshots/Screenshot%20from%202025-03-25%2017-02-48.png)
+![3](screenshots/Screenshot%20from%202025-03-27%2023-41-31.png)
+![4](screenshots/Screenshot%20from%202025-05-15%2013-16-11.png)
+![5](screenshots/Screenshot%20from%202025-05-15%2013-16-32.png)
+
 ## Architecture Overview
 
 ### REST API Design
@@ -74,9 +81,11 @@ graph LR
     GameState --> |Update| Client
     Tournament --> GameServer
 ```
+### Colaborators
+## Collaborators
 
-![1](screenshots/Screenshot%20from%202025-03-14%2018-12-23.png)
-![2](screenshots/Screenshot%20from%202025-03-25%2017-02-48.png)
-![3](screenshots/Screenshot%20from%202025-03-27%2023-41-31.png)
-![4](screenshots/Screenshot%20from%202025-05-15%2013-16-11.png)
-![5](screenshots/Screenshot%20from%202025-05-15%2013-16-32.png)
+[@iurilandolt](https://github.com/iurilandolt) 
+[@goncalo1021pt](https://github.com/goncalo1021pt) 
+[@AndrePortfolio](https://github.com/AndrePortfolio) 
+[@Ekkoz897](https://github.com/Ekkoz897) 
+
