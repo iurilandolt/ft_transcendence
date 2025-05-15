@@ -75,20 +75,16 @@ graph LR
     Tournament --> GameServer
 ```
 
-## Project Structure
-```
-ft_transcendence/
-├── data/
-│   └── web/
-│       ├── backend/       # Django apps
-│       ├── pong/         # Game logic
-│       ├── tournaments/  # Tournament system
-│       ├── authservice/  # Authentication
-│       └── static/       # Frontend assets
-├── srcs/
-│   └── requirements/
-│       ├── django/      # Django configuration
-│       ├── nginx/       # Nginx configuration
-│       └── postgres/    # Database configuration
-└── docker-compose.yml   # Container orchestration
-```
+
+### Game Interface
+![3D Pong Game Interface](screenshots/Screenshot%20from%202025-03-14%2018-12-23.png)
+
+### Tournament System
+![Tournament Bracket](screenshots/Screenshot%20from%202025-03-25%2017-02-48.png)
+
+### User Profile
+![User Profile Page](screenshots/Screenshot%20from%202025-03-27%2023-41-31.png)
+
+### Social Features
+![Friend List](screenshots/Screenshot%20from%202025-05-15%2013-16-11.png)
+![Chat Interface](screenshots/Screenshot%20from%202025-05-15%2013-16-32.png)
