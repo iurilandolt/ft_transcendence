@@ -31,7 +31,7 @@
 	box-shadow: 0 4px 30px rgba(255, 255, 255, 0.1);
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	transition: all 0.3s ease;
-	overflow: hidden;
+	/* overflow: hidden; */
 	z-index: 1000;
 }
 
@@ -57,38 +57,20 @@
 
 #user-icon {
     object-fit: cover;
+	overflow: hidden;
 }
 
 .menu-button .menu-icon {
-	width: 30px;
-	height: 30px;
+	width: 35px;
+	height: 35px;
 	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-top: 2px;
-	margin-left: 2px;
+	/* margin-top: 2px;
+	margin-left: 2px; */
+	overflow: visible;
 }
-
-
-/* 
-
-.game-button {
-    position: relative;
-    border-width: 2px;
-    transition: all 0.2s ease;
-    text-align: left;
-    overflow: hidden;
-    z-index: 1;
-}
-
-.game-button:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 15px #878080;
-    background-color: rgba(230, 233, 236, 0.427);
-}
-
-*/
 
 .menu-button.expanded .menu-icon {
 	margin: 0 auto;
@@ -172,7 +154,7 @@
 	border: 1px solid rgba(255, 255, 255, 0.2);
 	border-radius: 4px;
 	background: rgba(255, 255, 255, 0.05);
-	color: white;
+	color: white;		
 }
 
 .auth-form button,
@@ -301,6 +283,10 @@
 	color: #ffffff;
 }
 
+.text-center {
+	color: transparent;
+}
+
 .nav-tabs .nav-link {
 	color: rgb(157, 148, 148); 
 	background-color: rgba(255, 255, 255, 0.1); 
@@ -339,10 +325,17 @@
 }
 
 .table-light {
-    --bs-table-color: none;
-    --bs-table-bg: #1a1a1a;
-    --bs-table-accent-bg: transparent;
-	border-color: #1a1a1a;
+    background-color: transparent !important; 
+    color: #ffffff !important; 
+    border-color: #1a1a1a !important; 
+}
+
+
+.table-light th {
+    background-color: transparent !important; 
+    color: #ffffff !important; 
+    border-bottom: 1px solid #1a1a1a !important; 
+    box-shadow: none !important; 
 }
 
 .table-primary {
@@ -352,11 +345,38 @@
     border-color: #1a1a1a;
 }
 
-.table-danger {
+#match-history-container .table-danger {
     background-image: linear-gradient(20deg, #f03633aa 0%, #2b80ffc2 100%) !important;
     background-color: transparent !important;
     --bs-table-bg: transparent;
     border-color: #1a1a1a;
+}
+
+#match-history-container .table {
+	border-radius: 5px !important;
+	overflow: hidden;
+	border: 1px solid rgba(255, 255, 255, 0.2) !important; 
+}
+
+#match-history-container .table-responsive {
+	overflow: hidden;
+	border-radius: 5px;
+	border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+#match-history-container .no-match-history {
+	background-color: #76767633 !important;
+	border-color: rgb(130 130 130 / 9%) !important;
+	border-radius: 5px !important;
+	padding: 0.5rem 1rem !important;
+	color: #b0cce8 !important;
+	text-align: center;
+	border: 1px solid rgba(255, 255, 255, 0.2) !important;
+	overflow: hidden;
+}
+
+.tournament-label-text, .pwreset-label-text {
+    color: #649baf;
 }
 
 #friend-image-container {
@@ -377,6 +397,7 @@
 }
 
 /* Friends Tab Specific Styling */
+
 #friends .list-group-item {
     background-color: #76767633;
     border-color: rgb(130 130 130 / 9%) !important;
@@ -430,4 +451,76 @@
 #friends .btn:hover {
 	border-color: #e0e0e0;
     transition: all 0.2s ease;
+}
+
+
+#friend-search-container {
+	margin-bottom: 0  !important;
+}
+
+#friend-search-dropdown {
+    top: 2rem;
+    z-index: 1000;
+	border: #343a40 !important;
+}
+
+#friend-search-item {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* account tab specific styling */
+
+#account-delete-container {
+	padding-top: 1rem;
+}
+
+/*  dynamic language styling  */
+
+.language-menu {
+    position: fixed;
+    bottom: 10px; 
+    right: 10px;
+    /* background-color: black; */
+    /* border: 1px solid #ccc; */
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: flex; 
+    gap: 10px; 
+}
+
+.language-menu__link {
+    text-decoration: none;
+    color: white; 
+    padding: 5px 10px; 
+    border-radius: 8px; 
+    background: rgba(0, 0, 0, 0.5); 
+    backdrop-filter: blur(8px); 
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+    /* box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);  */
+    transition: all 0.3s ease; 
+    font-size: 14px; 
+}
+
+.language-menu__link:hover {
+    background-color: rgba(255, 255, 255, 0.2); 
+    transform: translateY(-2px); 
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3); 
+    text-decoration: none; 
+}
+
+.custom-heading {
+    margin-bottom: 1.5rem; /* Equivalent to mb-4 */
+    font-size: 2rem;
+    font-weight: bold;
+    color: white /* Adjust color as needed */
+}
+
+/* Custom class for paragraphs */
+.custom-paragraph {
+    margin-bottom: 1rem; /* Equivalent to mb-3 */
+    font-size: 1rem;
+    color: white; /* Adjust color as needed */
+    line-height: 1.5;
 }

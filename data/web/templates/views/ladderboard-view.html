@@ -1,0 +1,111 @@
+{% load i18n %}
+<div id="ladderboard-view" class="standard-view">
+	<div class="container">
+		<h2 class="text-center pwreset-label-text">{% trans "LEADERBOARD" %}</h2>
+		
+		<div class="card bg-dark border-secondary">
+			<div class="card-body">
+				<div class="table-responsive">
+					<table class="table table-dark table-hover">
+						<thead>
+							<tr>
+								<th scope="col">#</th>
+								<th scope="col">{% trans "Player" %}</th>
+								<th scope="col">{% trans "Rank" %}</th>
+								<th scope="col">{% trans "Trend" %}</th>
+							</tr>
+						</thead>
+						<tbody id="ladderboard-list">
+							{% if leaderboard %}
+								{% for entry in leaderboard %}
+									{% if current_page == 1 and forloop.first %}
+										<!-- styling for top player -->
+										<td>{{ forloop.counter|add:start_index }}</td>
+										<td>
+											<a href="#/profile/{{ entry.user.username }}/" class="text-decoration-none text-white">
+												<div class="d-flex align-items-center">
+													<img src="{{ entry.user.profile_pic }}" class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
+													{{ entry.user.username }}
+												</div>
+											</a>
+										</td>
+										<td><strong>{{ entry.rank_value }}</strong></td>
+										<td>
+											<span class="text-primary"> 👑 </span>
+										</td>
+									{% else %}
+										<!-- player styling -->
+										<tr>
+											<td>{{ forloop.counter|add:start_index }}</td>
+											<td>
+												<a href="#/profile/{{ entry.user.username }}/" class="text-decoration-none text-white">
+													<div class="d-flex align-items-center">
+														<img src="{{ entry.user.profile_pic }}" class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
+														{{ entry.user.username }}
+													</div>
+												</a>
+											</td>
+											<td>{{ entry.rank_value }}</td>
+											<td>
+												{% if entry.rank_change == 'up' %}
+													<span class="badge text-bg-success"> ↑ </span>
+												{% elif entry.rank_change == 'down' %}
+													<span class="badge text-bg-danger"> ↓ </span>
+												{% else %}
+													<span class="text-secondary">-</span>
+												{% endif %}
+											</td>
+										</tr>
+									{% endif %}
+								{% endfor %}
+							{% else %}
+								<tr>
+									<td colspan="4" class="text-center">{% trans "No rankings available" %}</td>
+								</tr>
+							{% endif %}
+						</tbody>
+					</table>
+				</div>
+				
+				<div class="text-center">
+					<ul class="pagination justify-content-center" id="ladderboard-pagination">
+						<!-- Previous page button -->
+						{% if current_page > 1 %}
+							<li class="page-item">
+								<a class="page-link" href="#/ladderboard/{{ current_page|add:'-1' }}/">&laquo;</a>
+							</li>
+						{% else %}
+							<li class="page-item disabled">
+								<a class="page-link">&laquo;</a>
+							</li>
+						{% endif %}
+
+						<!-- Page numbers -->
+						{% for i in total_pages %}
+							{% if forloop.counter == current_page %}
+								<li class="page-item active">
+									<a class="page-link">{{ forloop.counter }}</a>
+								</li>
+							{% else %}
+								<li class="page-item">
+									<a class="page-link" href="#/ladderboard/{{ forloop.counter }}/">{{ forloop.counter }}</a>
+								</li>
+							{% endif %}
+						{% endfor %}
+
+						<!-- Next page button -->
+						{% if current_page < total_pages|length %}
+							<li class="page-item">
+								<a class="page-link" href="#/ladderboard/{{ current_page|add:'1' }}/">&raquo;</a>
+							</li>
+						{% else %}
+							<li class="page-item disabled">
+								<a class="page-link">&raquo;</a>
+							</li>
+						{% endif %}
+					</ul>
+				</div>
+
+		</div>
+	</div>
+</div>

@@ -8,11 +8,12 @@ services:
     networks:
       - transcendence
     ports:
+      - "8080:80"
       - "4443:443"
     volumes:
       - web_data:/ft_transcendence
     restart: unless-stopped
-      
+
   django:
     container_name: django
     build: ./requirements/django
@@ -26,13 +27,15 @@ services:
       - web_data:/ft_transcendence
     secrets:
       - 42_secret
-      - 42_uid  
+      - 42_uid
       - db_name
       - db_user
       - db_user_psw
       - web_adm
       - web_adm_psw
       - web_host
+      - email_password
+      - secret_key
     restart: unless-stopped
 
   postgres:
@@ -54,7 +57,7 @@ services:
       interval: 3s
       timeout: 3s
       retries: 3
-    
+
 networks:
   transcendence:
     name: transcendence
@@ -64,7 +67,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: data/web
+      device: ../data/web
       o: bind
   db_data:
     # driver: local
@@ -92,3 +95,7 @@ secrets:
     file: ../secrets/web_adm_psw.txt
   web_host:
     file: ../secrets/web_host.txt
+  email_password:
+    file: ../secrets/email_password.txt
+  secret_key:
+    file: ../secrets/secret_key.txt

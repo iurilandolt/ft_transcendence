@@ -1,6 +1,6 @@
 from .pong_components import Paddle, Ball, Player, AIPlayer, ScoreBoard, GameField, GAME_SETTINGS
 import asyncio, neat, os, time, logging, pickle
-
+from .ai.pong_ai_components import AITraining
 
 logger = logging.getLogger('pong')
 class PongGame():
@@ -146,14 +146,15 @@ class MultiPongGame(PongGame):
 
 class AiPongGame(PongGame):
 	def __init__(self):
-		super().__init__('ai')
 		local_dir = os.path.dirname(__file__)
 		config_path = os.path.join(local_dir, "ai/config.txt")
 		self.config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
 								neat.DefaultSpeciesSet, neat.DefaultStagnation,
 								config_path)
-		with open("pong/ai/best_ai-3", "rb") as f:
+		super().__init__('ai')
+		with open("pong/ai/best_ai-4", "rb") as f:
 			self.ai_player = pickle.load(f)
+		# AITraining(self.config)
 
 	async def setup_players(self):
 		self.player1 = Player(self.consumers[0].get_username(), self.paddleLeft)
@@ -164,11 +165,6 @@ class AiPongGame(PongGame):
 		self.last_ai_update = time.time()
 
 	def update_ai(self):
-		current_time = time.time()
-		if current_time - self.last_ai_update >= 0.25:
-			output1 = self.net1.activate((self.paddleRight.y, self.ball.y, abs(self.paddleRight.x - self.ball.x)))
-			decision1 = output1.index(max(output1))
-			self.paddleRight.direction = 0 if decision1 == 0 else (-1 if decision1 == 1 else 1)
-			self.last_ai_update = current_time
-
-			
+		output1 = self.net1.activate((self.paddleRight.y, self.ball.y, abs(self.paddleRight.x - self.ball.x)))
+		decision1 = output1.index(max(output1))
+		self.paddleRight.direction = 0 if decision1 == 0 else (-1 if decision1 == 1 else 1)		

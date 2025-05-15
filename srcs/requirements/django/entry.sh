@@ -1,18 +1,17 @@
 #!/bin/bash
-cd /ft_transcendence
 
-python manage.py makemigrations backend pong authservice tournaments dashboard
+python /ft_transcendence/manage.py makemigrations backend pong authservice tournaments dashboard
 
-python manage.py migrate
+python /ft_transcendence/manage.py migrate
 
 # should only run once
-DJANGO_SUPERUSER_PASSWORD="$(cat /run/secrets/web_adm_psw)" python manage.py createsuperuser \
+DJANGO_SUPERUSER_PASSWORD="$(cat /run/secrets/web_adm_psw)" python /ft_transcendence/manage.py createsuperuser \
 	--noinput \
 	--username "$(cat /run/secrets/web_adm)" \
 	--email "$(cat /run/secrets/web_adm)"@transcendence.com
 
 
-python manage.py shell <<EOF
+python /ft_transcendence/manage.py shell <<EOF
 from django.contrib.auth import get_user_model
 User = get_user_model()
 if not User.objects.filter(username="Banana").exists():
@@ -23,7 +22,7 @@ if not User.objects.filter(username="Banana").exists():
     )
 EOF
 
-python manage.py shell <<EOF
+python /ft_transcendence/manage.py shell <<EOF
 from django.contrib.auth import get_user_model
 User = get_user_model()
 if not User.objects.filter(username="Jonas").exists():
@@ -34,7 +33,7 @@ if not User.objects.filter(username="Jonas").exists():
     )
 EOF
 
-python manage.py shell <<EOF
+python /ft_transcendence/manage.py shell <<EOF
 from django.contrib.auth import get_user_model
 User = get_user_model()
 if not User.objects.filter(username="Roger").exists():
@@ -45,7 +44,7 @@ if not User.objects.filter(username="Roger").exists():
     )
 EOF
 
-python manage.py shell <<EOF
+python /ft_transcendence/manage.py shell <<EOF
 from django.contrib.auth import get_user_model
 User = get_user_model()
 if not User.objects.filter(username="Sam").exists():
@@ -56,7 +55,7 @@ if not User.objects.filter(username="Sam").exists():
     )
 EOF
 
-python manage.py shell <<EOF
+python /ft_transcendence/manage.py shell <<EOF
 from django.contrib.auth import get_user_model
 User = get_user_model()
 if not User.objects.filter(username="Bilbo").exists():
@@ -67,4 +66,4 @@ if not User.objects.filter(username="Bilbo").exists():
     )
 EOF
 
-python manage.py runserver 0.0.0.0:8080
+python /ft_transcendence/manage.py runserver 0.0.0.0:8080

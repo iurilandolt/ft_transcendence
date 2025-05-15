@@ -1,0 +1,593 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-04-22 13:01+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: templates/menus/login-menu.html:21
+msgid "PROFILE"
+msgstr "PERFIL"
+
+#: templates/menus/login-menu.html:27
+msgid "LOG OUT"
+msgstr "TERMINAR SESSÃO"
+
+#: templates/menus/login-menu.html:29
+msgid "LOG IN"
+msgstr "INICIAR SESSÃO"
+
+#: templates/menus/nav-menu.html:6
+msgid "HOME"
+msgstr "INÍCIO"
+
+#: templates/menus/nav-menu.html:7
+msgid "PONG"
+msgstr "PONG"
+
+#: templates/menus/nav-menu.html:8
+msgid "LADDER"
+msgstr "CLASSIFICAÇÃO"
+
+#: templates/registration/password-reset-confirm-view.html:8
+#, fuzzy
+#| msgid "Change Password"
+msgid "Set New Password"
+msgstr "Alterar Palavra-passe"
+
+#: templates/registration/password-reset-confirm-view.html:18
+#, fuzzy
+#| msgid "Change Password"
+msgid "Set Password"
+msgstr "Alterar Palavra-passe"
+
+#: templates/registration/password-reset-confirm-view.html:27
+msgid "Request a new password reset"
+msgstr ""
+
+#: templates/registration/password-reset-confirm-view.html:28
+#: templates/registration/password-reset-confirm-view.html:39
+#: templates/registration/password-reset-view.html:15
+#: templates/registration/password-reset-view.html:26
+msgid "Back to Login"
+msgstr "Voltar para o Login"
+
+#: templates/registration/password-reset-confirm-view.html:37
+msgid "Password Reset Successful"
+msgstr "Redefinição de palavra-passe bem-sucedida"
+
+#: templates/registration/password-reset-confirm-view.html:38
+msgid ""
+"Your password has been reset successfully. You can now log in with your new "
+"password."
+msgstr ""
+"A sua palavra-passe foi redefinida com sucesso. Agora pode iniciar sessão "
+"com a sua nova palavra-passe."
+
+#: templates/registration/password-reset-view.html:5
+#, fuzzy
+#| msgid "Change Password"
+msgid "Reset Password"
+msgstr "Alterar Palavra-passe"
+
+#: templates/registration/password-reset-view.html:11
+msgid "Send Reset Link"
+msgstr "Enviar link de redefinição"
+
+#: templates/registration/password-reset-view.html:21
+#, fuzzy
+#| msgid "Email"
+msgid "Email Sent"
+msgstr "Email enviado"
+
+#: templates/registration/password-reset-view.html:23
+msgid "We've emailed you instructions for setting your password."
+msgstr "Enviámos-lhe um email com instruções para definir a sua palavra-passe."
+
+#: templates/registration/password-reset-view.html:24
+msgid ""
+"If you don't receive an email, please make sure you've entered the address "
+"you registered with."
+msgstr ""
+"Se não receber um email, certifique-se de que introduziu o endereço com o "
+"qual se registou."
+
+#: templates/views/home-view.html:9
+msgid "REAL-TIME MATCHES"
+msgstr "PARTIDAS EM TEMPO REAL"
+
+#: templates/views/home-view.html:10
+msgid "Challenge opponents from around the world in lightning-fast games"
+msgstr "Desafie adversários de todo o mundo em jogos ultrarrápidos"
+
+#: templates/views/home-view.html:14
+msgid "TOURNAMENTS"
+msgstr "TORNEIOS"
+
+#: templates/views/home-view.html:15
+msgid "Compete in daily and weekly tournaments to claim ultimate glory"
+msgstr "Compete em torneios diários e semanais para alcançar a glória suprema"
+
+#: templates/views/home-view.html:19
+msgid "CUSTOM PROFILES"
+msgstr "PERFIS PERSONALIZADOS"
+
+#: templates/views/home-view.html:20
+msgid "Create your unique identity and showcase your achievements"
+msgstr "Crie a sua identidade única e exiba as suas conquistas"
+
+#: templates/views/home-view.html:28
+msgid "PLAYERS"
+msgstr "JOGADORES"
+
+#: templates/views/home-view.html:32
+msgid "MATCHES"
+msgstr "PARTIDAS"
+
+#: templates/views/home-view.html:36
+msgid "CHAMPIONS"
+msgstr "CAMPEÕES"
+
+#: templates/views/ladderboard-view.html:4
+msgid "LEADERBOARD"
+msgstr "TABELA DE CLASSIFICAÇÃO"
+
+#: templates/views/ladderboard-view.html:13
+msgid "Player"
+msgstr "Jogador"
+
+#: templates/views/ladderboard-view.html:14
+#, fuzzy
+#| msgid "Rank:"
+msgid "Rank"
+msgstr "Classificação:"
+
+#: templates/views/ladderboard-view.html:15
+msgid "Trend"
+msgstr "Tendência"
+
+#: templates/views/ladderboard-view.html:63
+#, fuzzy
+#| msgid "No match history available"
+msgid "No rankings available"
+msgstr "Nenhum histórico de partidas disponível"
+
+#: templates/views/login-view.html:5 templates/views/profile-view.html:285
+#: templates/views/register-view.html:5
+msgid "Username"
+msgstr "Nome de Utilizador"
+
+#: templates/views/login-view.html:8 templates/views/profile-view.html:384
+#: templates/views/profile-view.html:388 templates/views/register-view.html:17
+#, fuzzy
+#| msgid "Change Password"
+msgid "Password"
+msgstr "Alterar Palavra-passe"
+
+#: templates/views/login-view.html:10
+msgid "Login"
+msgstr "Inicie sessão"
+
+#: templates/views/login-view.html:13
+msgid "Log in with 42 account"
+msgstr "Inicie sessão com a conta 42"
+
+#: templates/views/login-view.html:16
+msgid "Don't have an account? Register"
+msgstr "Não tem uma conta? Registe-se"
+
+#: templates/views/login-view.html:17
+msgid "Forgot your password?"
+msgstr "Esqueceu-se da palavra-passe?"
+
+#: templates/views/login-view.html:21
+msgid "2FA Code"
+msgstr "Código 2FA"
+
+#: templates/views/login-view.html:24
+msgid "Verify 2FA"
+msgstr "Verificar 2FA"
+
+#: templates/views/pong-view.html:9 templates/views/profile-view.html:14
+#: templates/views/profile-view.html:245
+msgid "Rank:"
+msgstr "Classificação:"
+
+#: templates/views/pong-view.html:16
+msgid "Versus Mode"
+msgstr "Modo Versus"
+
+#: templates/views/pong-view.html:17
+msgid "Play against a friend locally"
+msgstr "Jogue contra um amigo localmente"
+
+#: templates/views/pong-view.html:21
+msgid "AI Challenge"
+msgstr "Desafio IA"
+
+#: templates/views/pong-view.html:22
+msgid "Test your skills against a trained AI"
+msgstr "Teste as suas habilidades contra uma IA treinada"
+
+#: templates/views/pong-view.html:26
+msgid "Quick Match"
+msgstr "Partida Rápida"
+
+#: templates/views/pong-view.html:27
+msgid "Find an online opponent"
+msgstr "Encontre um adversário online"
+
+#: templates/views/pong-view.html:31 templates/views/tournament-view.html:79
+msgid "Tournament"
+msgstr "Torneio"
+
+#: templates/views/pong-view.html:32
+msgid "Compete in bracket-style tournaments"
+msgstr "Compita em torneios no formato de eliminatórias"
+
+#: templates/views/profile-view.html:16 templates/views/tournament-view.html:83
+#, fuzzy
+#| msgid "Stats"
+msgid "Status:"
+msgstr "Estatísticas"
+
+#: templates/views/profile-view.html:16
+msgid "Online"
+msgstr "Online"
+
+#: templates/views/profile-view.html:16
+msgid "Offline"
+msgstr "Offline"
+
+#: templates/views/profile-view.html:22
+msgid "Add Friend"
+msgstr "Adicionar Amigo"
+
+#: templates/views/profile-view.html:26
+msgid "Cancel Request"
+msgstr "Cancelar Pedido"
+
+#: templates/views/profile-view.html:31 templates/views/profile-view.html:207
+msgid "Accept"
+msgstr "Aceitar"
+
+#: templates/views/profile-view.html:34 templates/views/profile-view.html:213
+msgid "Reject"
+msgstr "Rejeitar"
+
+#: templates/views/profile-view.html:39
+msgid "Remove Friend"
+msgstr "Remover Amigo"
+
+#: templates/views/profile-view.html:51 templates/views/profile-view.html:79
+msgid "About"
+msgstr "Sobre"
+
+#: templates/views/profile-view.html:54
+msgid "Stats"
+msgstr "Estatísticas"
+
+#: templates/views/profile-view.html:57 templates/views/profile-view.html:123
+msgid "Match History"
+msgstr "Histórico de Partidas"
+
+#: templates/views/profile-view.html:61 templates/views/profile-view.html:176
+msgid "Friends"
+msgstr "Amigos"
+
+#: templates/views/profile-view.html:69
+msgid "Account"
+msgstr "Conta"
+
+#: templates/views/profile-view.html:87
+msgid "First joined:"
+msgstr "Primeira entrada:"
+
+#: templates/views/profile-view.html:91
+msgid "Last seen:"
+msgstr "Última visualização:"
+
+#: templates/views/profile-view.html:100
+msgid "Player Statistics"
+msgstr "Estatísticas do Jogador"
+
+#: templates/views/profile-view.html:105
+msgid "Total Games"
+msgstr "Total de Jogos"
+
+#: templates/views/profile-view.html:109
+msgid "Wins"
+msgstr "Vitórias"
+
+#: templates/views/profile-view.html:113
+msgid "Losses"
+msgstr "Derrotas"
+
+#: templates/views/profile-view.html:129
+msgid "Result"
+msgstr "Resultado"
+
+#: templates/views/profile-view.html:130
+msgid "Score"
+msgstr "Pontuação"
+
+#: templates/views/profile-view.html:131
+msgid "Date"
+msgstr "Data"
+
+#: templates/views/profile-view.html:132
+msgid "Game ID"
+msgstr "ID do Jogo"
+
+#: templates/views/profile-view.html:133
+msgid "Opponent"
+msgstr "Adversário"
+
+#: templates/views/profile-view.html:141
+msgid "WIN"
+msgstr "VITÓRIA"
+
+#: templates/views/profile-view.html:141
+msgid "LOSS"
+msgstr "DERROTA"
+
+#: templates/views/profile-view.html:160
+msgid "No match history available"
+msgstr "Nenhum histórico de partidas disponível"
+
+#: templates/views/profile-view.html:173
+msgid "Find_user..."
+msgstr "Procurar_Utilizador..."
+
+#: templates/views/profile-view.html:184
+msgid "Friend Requests"
+msgstr "Pedidos de Amizade"
+
+#: templates/views/profile-view.html:195
+msgid "Incoming"
+msgstr "Recebidos"
+
+#: templates/views/profile-view.html:197
+msgid "Sent"
+msgstr "Enviados"
+
+#: templates/views/profile-view.html:220 templates/views/profile-view.html:277
+#: templates/views/profile-view.html:367 templates/views/profile-view.html:396
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: templates/views/profile-view.html:264
+msgid "No friends yet"
+msgstr "Ainda sem amigos"
+
+#: templates/views/profile-view.html:273
+msgid "Account Settings"
+msgstr "Configurações da Conta"
+
+#: templates/views/profile-view.html:275
+msgid "Edit Profile"
+msgstr "Editar Perfil"
+
+#: templates/views/profile-view.html:276
+msgid "Save Changes"
+msgstr "Guardar Alterações"
+
+#: templates/views/profile-view.html:290 templates/views/register-view.html:14
+msgid "Email"
+msgstr "Email"
+
+#: templates/views/profile-view.html:295
+msgid "About Me"
+msgstr "Sobre Mim"
+
+#: templates/views/profile-view.html:300
+msgid "Profile Picture"
+msgstr "Foto de Perfil"
+
+#: templates/views/profile-view.html:302
+msgid "Change Profile Picture"
+msgstr "Alterar Foto de Perfil"
+
+#: templates/views/profile-view.html:304
+#, fuzzy
+#| msgid "Profile Picture"
+msgid "Upload Profile Picture"
+msgstr "Foto de Perfil"
+
+#: templates/views/profile-view.html:307
+msgid "Select new profile picture:"
+msgstr "Selecione uma nova foto de perfil:"
+
+#: templates/views/profile-view.html:331
+msgid "Security Settings"
+msgstr "Configurações de Segurança"
+
+#: templates/views/profile-view.html:347
+msgid "Password Security"
+msgstr "Segurança da Palavra-passe"
+
+#: templates/views/profile-view.html:350
+msgid "Change Password"
+msgstr "Alterar Palavra-passe"
+
+#: templates/views/profile-view.html:355
+#, fuzzy
+#| msgid "Change Password"
+msgid "Current password"
+msgstr "Alterar Palavra-passe"
+
+#: templates/views/profile-view.html:358
+#, fuzzy
+#| msgid "Change Password"
+msgid "New password"
+msgstr "Alterar Palavra-passe"
+
+#: templates/views/profile-view.html:364 templates/views/profile-view.html:393
+msgid "Confirm"
+msgstr "Confirmar"
+
+#: templates/views/profile-view.html:376
+#, fuzzy
+#| msgid "Account Settings"
+msgid "Account Deletion"
+msgstr "Configurações da Conta"
+
+#: templates/views/profile-view.html:379
+#, fuzzy
+#| msgid "Account"
+msgid "Delete Account"
+msgstr "Conta"
+
+#: templates/views/profile-view.html:416
+msgid "Two-Factor Authentication"
+msgstr "Autenticação de Dois Fatores"
+
+#: templates/views/profile-view.html:419
+msgid ""
+"A 2FA method is a good way to add an extra layer of security to your account."
+msgstr ""
+"Um método 2FA é uma boa forma de adicionar uma camada extra de segurança à "
+"sua conta."
+
+#: templates/views/profile-view.html:427
+msgid "ON"
+msgstr "ATIVADO"
+
+#: templates/views/profile-view.html:427
+msgid "OFF"
+msgstr "DESATIVADO"
+
+#: templates/views/register-view.html:8
+#, fuzzy
+#| msgid "First joined:"
+msgid "First Name"
+msgstr "Primeira entrada:"
+
+#: templates/views/register-view.html:11
+#, fuzzy
+#| msgid "Last seen:"
+msgid "Last Name"
+msgstr "Última visualização:"
+
+#: templates/views/register-view.html:19
+msgid "Register"
+msgstr "Registar"
+
+#: templates/views/tournament-view.html:8
+msgid "Previous Tournament"
+msgstr "Torneio Anterior"
+
+#: templates/views/tournament-view.html:17
+#: templates/views/tournament-view.html:115
+msgid "Winner:"
+msgstr "Vencedor:"
+
+#: templates/views/tournament-view.html:22
+msgid "Eliminated in round"
+msgstr "Eliminado na ronda"
+
+#: templates/views/tournament-view.html:24
+#, fuzzy
+#| msgid "Tournament"
+msgid "Tournament Winner!"
+msgstr "Torneio"
+
+#: templates/views/tournament-view.html:31
+#, fuzzy
+#| msgid "Not in tournament"
+msgid "No tournament history"
+msgstr "Não está em nenhum torneio"
+
+#: templates/views/tournament-view.html:39
+msgid "Active Tournaments"
+msgstr "Torneios Ativos"
+
+#: templates/views/tournament-view.html:51
+#: templates/views/tournament-view.html:93
+#, fuzzy
+#| msgid "Player"
+msgid "Players:"
+msgstr "Jogador"
+
+#: templates/views/tournament-view.html:56
+#, fuzzy
+#| msgid "Active Tournaments"
+msgid "No active tournaments"
+msgstr "Torneios Ativos"
+
+#: templates/views/tournament-view.html:64
+msgid "Create Tournament"
+msgstr "Criar Torneio"
+
+#: templates/views/tournament-view.html:65
+msgid "Join Tournament"
+msgstr "Participar no Torneio"
+
+#: templates/views/tournament-view.html:66
+msgid "Leave Tournament"
+msgstr "Sair do Torneio"
+
+#: templates/views/tournament-view.html:73
+msgid "Tournament Status"
+msgstr "Estado do Torneio"
+
+#: templates/views/tournament-view.html:88
+msgid "Round:"
+msgstr "Ronda:"
+
+#: templates/views/tournament-view.html:100
+msgid "Current Round Matches"
+msgstr "Partidas da ronda atual"
+
+#: templates/views/tournament-view.html:121
+#, fuzzy
+#| msgid "Quick Match"
+msgid "Join Match"
+msgstr "Partida Rápida"
+
+#: templates/views/tournament-view.html:130
+msgid "Not in tournament"
+msgstr "Não está em nenhum torneio"
+
+#: templates/views/twoFactor-view.html:6
+msgid "Link you App to your Transcendence account"
+msgstr "Ligue a sua App à sua conta Transcendence"
+
+#: templates/views/twoFactor-view.html:7
+msgid "Scan the QR code below with your authenticator app to enable 2FA:"
+msgstr ""
+"Digitalize o código QR abaixo com a sua app autenticadora para ativar o 2FA:"
+
+#: templates/views/twoFactor-view.html:11
+msgid "Next"
+msgstr "Próximo"
+
+#: templates/views/twoFactor-view.html:15
+msgid "Enter the 2FA code generated by your authenticator app:"
+msgstr "Insira o código 2FA gerado pela sua app autenticadora:"
+
+#: templates/views/twoFactor-view.html:16
+#, fuzzy
+#| msgid "2FA Code"
+msgid "Enter 2FA code"
+msgstr "Código 2FA"
+
+#: templates/views/twoFactor-view.html:17
+msgid "Verify"
+msgstr "Verificar"
+
+#~ msgid "no history..."
+#~ msgstr "sem histórico..."

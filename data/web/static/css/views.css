@@ -56,7 +56,7 @@ body {
 	animation: fadeIn 0.3s ease forwards;
 }
 
-#profile-view {
+#profile-view, #ladderboard-view {
 	justify-content: flex-start;
 	align-items: stretch;
 }

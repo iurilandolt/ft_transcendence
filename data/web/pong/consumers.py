@@ -1,9 +1,11 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
 from .pong import PongGame, MultiPongGame, AiPongGame
 from .pong_components import Player
 from multiprocessing import Process
 from .ai.pong_ai_components import AITraining
 from .db_api import GameDB
+from .models import User
 import json, os, neat, logging
 
 
@@ -16,24 +18,34 @@ class SinglePongConsumer(AsyncWebsocketConsumer):
 		super().__init__(*args, **kwargs)
 		self.mode = 'vs'
 		self.id = None
+		self.jwt_token = None
+		self.user : User = None
 		self.game : PongGame = None
 	
-	def get_username(self):
-		return self.scope["user"].username if self.scope["user"].is_authenticated else None
+	@database_sync_to_async
+	def authenticate_user(self, token):
+		return User.from_jwt_token(token)
 	
 	def get_user_id(self):
-		return self.scope["user"].uuid if self.scope["user"].is_authenticated else None
+		return self.user.uuid if self.user else None
+
+	def get_username(self):
+		return self.user.username if self.user else None
 
 
 	async def connect(self):
-		if not self.scope["user"].is_authenticated:
+		try:
+			self.jwt_token = self.scope['cookies'].get('jwt')
+			self.user : User = await self.authenticate_user(self.jwt_token)
+			self.id = self.get_user_id()
+
+			if not self.jwt_token or not self.user or self.id in self.active_games:
+				raise ValueError("Invalid connection attempt")
+
+		except Exception as e:
 			await self.close()
-			return
-		# self.id = self.get_username()
-		self.id = self.get_user_id()
-		if self.id in self.active_games:
-			await self.close()
-			return
+			return	
+
 		await self.accept()
 
 
@@ -70,7 +82,10 @@ class SinglePongConsumer(AsyncWebsocketConsumer):
 
 
 	async def broadcast(self, message):
-		await self.send(json.dumps(message))
+		try:
+			await self.send(json.dumps(message))
+		except Exception as e:
+			logger.error(f"Error sending message: {e}")
 
 	async def broadcast_game_start(self, game):
 		await self.broadcast({
@@ -109,11 +124,20 @@ class MultiPongConsumer(SinglePongConsumer):
 		
 	
 	async def connect(self):
-		if not self.scope["user"].is_authenticated:
+		try:
+			self.jwt_token = self.scope['cookies'].get('jwt')
+			self.user : User = await self.authenticate_user(self.jwt_token)
+			self.id = self.get_user_id()
+
+			if not self.jwt_token or not self.user or self.id in self.active_games:
+				raise ValueError("Invalid connection attempt")
+
+		except Exception as e:
 			await self.close()
-			return
+			return	
+		
+
 		self.game_id = self.scope['url_route']['kwargs']['game_id']
-		#self.player_id = self.get_username()
 		self.player_id = self.get_user_id()
 		await self.accept()
 
@@ -165,7 +189,7 @@ class MultiPongConsumer(SinglePongConsumer):
 						await GameDB.complete_game(game_entry['game'].game_id, winner.player_id)
 					else:
 						#await GameDB.complete_game(game_entry['game'].game_id, self.player_id)
-						await GameDB.complete_game(game_entry['game'].game_id, self.scope["user"].username)
+						await GameDB.complete_game(game_entry['game'].game_id, self.user.username)
 					await GameDB.delete_game(self.game_id)
 					del self.active_games[self.game_id]
 
@@ -247,21 +271,18 @@ class AIConsumer(SinglePongConsumer):
 			process.start()
 			return
 		else:
-			if not self.scope["user"].is_authenticated:
-				await self.close()
-				return
+			try:
+				self.jwt_token = self.scope['cookies'].get('jwt')
+				self.user : User = await self.authenticate_user(self.jwt_token)
+				self.id = self.get_user_id()
 
-			# self.id = self.get_username()
-			self.id = self.get_user_id()
-			if self.id in self.active_games:
-				await self.close()
-				return
+				if not self.jwt_token or not self.user or self.id in self.active_games:
+					raise ValueError("Invalid connection attempt")
 
-			if self.id not in self.active_games:
-				self.active_games[self.id] = self.id
-			else:
+			except Exception as e:
 				await self.close()
-				return
+				return	
+
 			await self.accept()
 
 
@@ -278,6 +299,9 @@ class AIConsumer(SinglePongConsumer):
 			return
 		match data['action']:
 			case 'connect':
+				if self.id not in self.active_games:
+					self.active_games[self.id] = self.id
+
 				self.game = AiPongGame()
 				self.game.add_consumer(self)
 				await self.game.init_game_components()

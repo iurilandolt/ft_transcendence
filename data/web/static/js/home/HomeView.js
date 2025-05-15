@@ -1,3 +1,4 @@
+import { BaseComponent } from '/static/js/index/BaseComponent.js';
 export class HomeView extends BaseComponent {
 	constructor() {
 		super('/home-view/');

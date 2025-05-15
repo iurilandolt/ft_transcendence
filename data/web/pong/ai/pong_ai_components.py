@@ -21,10 +21,10 @@ class AITraining:
 		p.add_reporter(neat.Checkpointer(1))
 
 		# Run training without modifying eval_genomes signature
-		winner = p.run(self.eval_genomes, 50)
+		winner = p.run(self.eval_genomes, 5)
 
 		# Save the trained AI
-		with open("pong/ai/best_ai-3", "wb") as f:
+		with open("pong/ai/best_ai-4", "wb") as f:
 			pickle.dump(winner, f)
 
 	@staticmethod
@@ -84,7 +84,7 @@ class PongGame:
 			game_info = self.game.loop()
 
 			# self.game.draw(draw_score=False, draw_hits=True)
-			# pygame.display.update()
+			pygame.display.update()
 
 			if game_info.left_score >= 1 or game_info.right_score >= 1 or game_info.left_hits > 50:
 				self.calculate_fitness(genome1, genome2, game_info)

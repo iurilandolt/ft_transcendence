@@ -1,4 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+from .models import User
 from .db_api import GameDB
 import json, time, secrets, logging
 
@@ -11,20 +13,30 @@ class QuickLobby(AsyncWebsocketConsumer):
 		token = secrets.token_hex(4)
 		return f"qg:{timestamp}:{token}"
 
+	@database_sync_to_async
+	def authenticate_user(self, token):
+		return User.from_jwt_token(token)
 
 	def get_username(self):
-		return self.scope["user"].username if self.scope["user"].is_authenticated else None
+		return self.user.username if self.user else None
 
 	def get_user_id(self):
-		uuid = self.scope["user"].uuid if self.scope["user"].is_authenticated else None
+		uuid = self.user.uuid if self.user else None
 		return str(uuid) if uuid else None
 	
 	async def connect(self):
-		if not self.scope["user"].is_authenticated:
+		try:
+			self.jwt_token = self.scope['cookies'].get('jwt')
+			self.user : User = await self.authenticate_user(self.jwt_token)
+			self.player_id = self.get_user_id()
+
+			if not self.jwt_token or not self.user:
+				raise ValueError("Invalid connection attempt")
+
+		except Exception as e:
 			await self.close()
-			return
-		#self.player_id = self.get_username()
-		self.player_id = self.get_user_id()
+			return	
+
 
 		if ongoing_game := await GameDB.player_in_game(self.player_id):
 			
@@ -44,8 +56,7 @@ class QuickLobby(AsyncWebsocketConsumer):
 			await self.close()
 			return
 
-		await self.accept()
-		
+		await self.accept()		
 		self.queued_players[self.player_id] = self
 		await self.broadcast_player_count()
 		await self.try_match_players()
@@ -68,7 +79,7 @@ class QuickLobby(AsyncWebsocketConsumer):
 			player_ids = list(self.queued_players.keys())[:2]
 			game_id = f"{self.generate_game_id()}"
 			
-			player_usernames = [self.queued_players[player_id].scope["user"].username 
+			player_usernames = [self.queued_players[player_id].user.username 
 								for player_id in player_ids]
 			
 			for i in range(len(player_ids)):
@@ -84,6 +95,8 @@ class QuickLobby(AsyncWebsocketConsumer):
 				await player.send(json.dumps(match_data))
 				del self.queued_players[player_ids[i]]
 				await player.close()
+		
+		await self.broadcast_player_count()
 
 
 	async def broadcast_player_count(self):
@@ -109,7 +122,7 @@ class TournamentLobby(QuickLobby):
 			if ws.scope['url_route']['kwargs']['game_id'] == game_id][:2]
 		
 		if len(tournament_players) >= 2:
-				tournament_usernames = [self.queued_players[player_id].scope["user"].username 
+				tournament_usernames = [self.queued_players[player_id].user.username 
 										for player_id in tournament_players]
 				
 				for i, player_id in enumerate(tournament_players):
@@ -125,3 +138,5 @@ class TournamentLobby(QuickLobby):
 					await player.send(json.dumps(match_data))
 					del self.queued_players[player_id]
 					await player.close()
+		
+		await self.broadcast_player_count()

@@ -1,11 +1,14 @@
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
-from django.views.decorators.http import require_http_methods
-from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+
 from .models import Tournament
+import json, time, secrets, logging
 
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
 
-import json, time, secrets
+logger = logging.getLogger('pong')
 
 def generate_tournament_id() -> str:
 	timestamp = int(time.time())
@@ -13,8 +16,10 @@ def generate_tournament_id() -> str:
 	return f"t:{timestamp}:{token}"
 
 
-@login_required
-@require_http_methods(["POST"])
+
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def tournament_create(request):
 	if Tournament.player_in_tournament(str(request.user.uuid)): # check for uuid instead
 		return JsonResponse({
@@ -34,8 +39,10 @@ def tournament_create(request):
 	})
 
 
-@login_required
-@require_http_methods(["DELETE"])
+
+@api_view(["DELETE"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def tournament_leave(request):
 	tournament = Tournament.objects.filter(
 		player_ids__has_key=str(request.user.uuid),
@@ -65,8 +72,10 @@ def tournament_leave(request):
 	return JsonResponse({'status': 'left'})
 
 
-@login_required
-@require_http_methods(["PUT"])
+
+@api_view(["PUT"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def tournament_join(request):
 	data = json.loads(request.body)
 	tournament_id = data.get('tournament_id')
@@ -106,65 +115,60 @@ def tournament_join(request):
 	})
 
 
-@login_required
-@require_http_methods(["GET"])
-def tournament_list(request):
-	username = request.user.username
-	user_uuid = str(request.user.uuid)
-	# user's tournament
+def get_tournament_list(user):
+	username = user.username
+	user_uuid = str(user.uuid)
+	
 	user_tournament = Tournament.objects.filter(
 		player_ids__has_key=user_uuid,
 		status__in=['REGISTERING', 'IN_PROGRESS']
 	).first()
 	
-
-	# all active tournaments
 	tournaments = Tournament.objects.filter(
 		status__in=['REGISTERING', 'IN_PROGRESS']
 	).order_by('-created_at')
 	
 	current_tournament_data = None
 	if user_tournament:
-		current_tournament_data = {
-			'players': user_tournament.players,
-			'current_round': user_tournament.current_round,
-			'rounds': user_tournament.rounds,
-			'status': user_tournament.status
-		}
-		
-		# matches that belong to the current user
+		current_round_matches = None
 		if user_tournament.rounds and user_tournament.current_round < len(user_tournament.rounds):
-			current_round = user_tournament.rounds[user_tournament.current_round]
-			for match in current_round:
+			current_round_matches = user_tournament.rounds[user_tournament.current_round]
+			for match in current_round_matches:
 				match['is_player_match'] = (match['player1'] == username or match['player2'] == username)
 
-	return JsonResponse({
+		current_tournament_data = {
+			'tournament_id': user_tournament.tournament_id,
+			'players': user_tournament.players,
+			'current_round': user_tournament.current_round,
+			'current_matches': current_round_matches, 
+			'status': user_tournament.status
+		}
+
+	return {
 		'in_tournament': bool(user_tournament),
 		'current_tournament_id': user_tournament.tournament_id if user_tournament else None,
 		'current_tournament': current_tournament_data,
-		'tournaments': [{
+		'active_tournaments': [{
 			'tournament_id': t.tournament_id,
 			'status': t.status,
 			'player_count': len(t.players),
 			'max_players': t.max_players
 		} for t in tournaments]
-	})
+	}
 
 
-@login_required
-@require_http_methods(["GET"])
-def user_tournaments(request):
-    user_uuid = str(request.user.uuid)
+def get_user_tournament_history(user):
+    user_uuid = str(user.uuid)
     last_tournament = Tournament.objects.filter(
         player_ids__has_key=user_uuid,
         status='COMPLETED'
     ).order_by('-updated_at').first()
 
     if not last_tournament:
-        return JsonResponse({
-            'status': 'success',
-            'has_history': False
-        })
+        return {
+            'has_history': False,
+            'tournament': None
+        }
 
     elimination_round = None
     if last_tournament.winner_id != user_uuid:
@@ -186,22 +190,18 @@ def user_tournaments(request):
                             winner_id = uuid
                             break
 
-                    # if user isn't the winner, they were eliminated in this round
                     if winner_id != user_uuid:
                         elimination_round = round_num + 1
                         break
             if elimination_round:
                 break
 
-    return JsonResponse({
-        'status': 'success',
+    return {
         'has_history': True,
-        'tournament': {
-            'id': last_tournament.tournament_id,
-            'winner': last_tournament.winner,
-            'winner_id': last_tournament.winner_id,
-            'elimination_round': elimination_round,
-            'total_rounds': len(last_tournament.rounds),
-            'players': last_tournament.players
-        }
-    })
+        'id': last_tournament.tournament_id,
+        'winner': last_tournament.winner,
+        'winner_id': last_tournament.winner_id,
+        'elimination_round': elimination_round,
+        'total_rounds': len(last_tournament.rounds),
+        'players': last_tournament.players
+    }

@@ -9,19 +9,24 @@ class LoginMenuConsumer(AsyncJsonWebsocketConsumer):
 	active_users = []
 	instances = []
 
-	async def connect(self):
-		if not self.scope["user"].is_authenticated:
-			await self.close()
-			return
-		
-		self.user : User = self.scope["user"]
-		self.last_ping = None
+	@database_sync_to_async
+	def authenticate_user(self, token):
+		return User.from_jwt_token(token)
 
-		if self.user in self.active_users:
+	async def connect(self):
+		try:
+			self.last_ping = None
+			self.jwt_token = self.scope['cookies'].get('jwt')
+			self.user = await self.authenticate_user(self.jwt_token)
+
+			if not self.jwt_token or not self.user or self.user in self.active_users:
+				raise ValueError("Invalid connection attempt")
+
+			await self.accept()
+
+		except Exception as e:
 			await self.close()
 			return
-				
-		await self.accept()
 
 
 	async def receive(self, text_data):
@@ -44,7 +49,7 @@ class LoginMenuConsumer(AsyncJsonWebsocketConsumer):
 				
 
 	async def disconnect(self, close_code):
-		if not self.scope["user"].is_authenticated:
+		if not self.jwt_token or not self.user:
 			return
 
 		if self.user in self.active_users:

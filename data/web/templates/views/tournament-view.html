@@ -1,45 +1,139 @@
+{% load i18n %}
 <div id="tournament-view" class="standard-view">
-  <div class="container-fluid h-100" id="tournament-container">
-      <div id="tournament-content">
-        <!-- Tournament History Section -->
-        <div class="card mb-4 bg-transparent">
-          <div class="card-header bg-dark bg-opacity-75">
-            <h5 class="card-title text-light mb-0">Previous Tournament</h5>
-          </div>
-          <div class="card-body bg-dark bg-opacity-50">
-            <div id="last-tournament">
-              <div class="no-history text-secondary">no history...</div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Active Tournaments Section -->
-        <div class="card mb-4 bg-transparent">
-          <div class="card-header bg-dark bg-opacity-75">
-            <h5 class="card-title text-light mb-0">Active Tournaments</h5>
-          </div>
-          <div class="card-body bg-dark bg-opacity-50 p-0">
-            <div id="tournaments-container" class="scrollable-tournaments list-group list-group-flush"></div>
-          </div>
-        </div>
-        
-        <!-- Tournament Actions -->
-        <div class="tournament-actions d-flex gap-2 mb-4">
-          <button id="create-tournament" class="btn btn-outline-light tournament-button">Create Tournament</button>
-          <button id="join-tournament" class="btn btn-outline-light tournament-button">Join Tournament</button>
-          <button id="leave-tournament" class="btn btn-outline-danger tournament-button d-none">Leave Tournament</button>
-          <div id="tournament-errors" class="error-messages text-danger ms-2 align-self-center"></div>
-        </div>
-        
-        <!-- Tournament Status Section -->
-        <div class="card mb-4 bg-transparent">
-          <div class="card-header bg-dark bg-opacity-75">
-            <h5 class="card-title text-light mb-0">Tournament Status</h5>
-          </div>
-          <div class="card-body bg-dark bg-opacity-50">
-            <div id="tournament-state" class="text-secondary">Not in tournament</div>
-          </div>
-        </div>
-      </div>
-  </div>
+	<div class="container-fluid h-100" id="tournament-container">
+		<div id="tournament-content">
+		<!-- Tournament History Section -->
+		<div class="card mb-4 bg-transparent">
+			<div class="card-header bg-dark bg-opacity-75">
+			<h5 class="card-title text-light mb-0">{% trans "Previous Tournament" %}</h5>
+			</div>
+			<div class="card-body bg-dark bg-opacity-50">
+				<div id="last-tournament">
+					{% if tournament_history.has_history %}
+					<div class="card bg-dark bg-opacity-25 border-secondary">
+						<div class="card-body p-3">
+						<div class="d-flex justify-content-between mb-2">
+							<span><span class="tournament-label-text">ID:</span> <span class="badge bg-secondary">{{ tournament_history.id }}</span></span>
+							<span><span class="tournament-label-text">{% trans "Winner:" %}</span> <span class="badge bg-success">{{ tournament_history.winner }}</span></span>
+						</div>
+						<div class="text-center">
+							<span class="{% if tournament_history.elimination_round %}text-warning{% else %}text-success{% endif %}">
+							{% if tournament_history.elimination_round %}
+								{% trans "Eliminated in round" %} {{ tournament_history.elimination_round }} of {{ tournament_history.total_rounds }}
+							{% else %}
+								🏆 {% trans "Tournament Winner!" %}
+							{% endif %}
+							</span>
+						</div>
+						</div>
+					</div>
+					{% else %}
+					<div class="text-secondary">{% trans "No tournament history" %}</div>
+					{% endif %}
+				</div>
+			</div>
+		
+		<!-- Active Tournaments Section -->
+		<div class="card mb-4 bg-transparent">
+			<div class="card-header bg-dark bg-opacity-75">
+			<h5 class="card-title text-light mb-0">{% trans "Active Tournaments" %}</h5>
+			</div>
+			<div class="card-body bg-dark bg-opacity-50 p-0">
+			<div id="tournaments-container" class="scrollable-tournaments list-group list-group-flush">
+				{% if active_tournaments %}
+				{% for tournament in active_tournaments %}
+					<div class="list-group-item tournament-item bg-dark bg-opacity-50 border-0" data-tournament-id="{{ tournament.tournament_id }}">
+						<div class="d-flex justify-content-between align-items-center">
+							<span><span class="tournament-label-text">ID:</span> <span class="badge bg-secondary">{{ tournament.tournament_id }}</span></span>
+							<span class="badge {% if tournament.status == 'WAITING' %}bg-warning{% elif tournament.status == 'IN_PROGRESS' %}bg-primary{% else %}bg-success{% endif %}">
+							{{ tournament.status }}
+							</span>
+							<span><span class="tournament-label-text">{% trans "Players:" %}</span> <span class="badge bg-info">{{ tournament.player_count }}/{{ tournament.max_players }}</span></span>
+						</div>
+					</div>
+				{% endfor %}
+				{% else %}
+				<div class="list-group-item bg-dark bg-opacity-50 border-0 text-secondary">{% trans "No active tournaments" %}</div>
+				{% endif %}
+			</div>
+			</div>
+		</div>
+		
+		<!-- Tournament Actions -->
+		<div class="tournament-actions d-flex gap-2 mb-4">
+			<button id="create-tournament" class="btn btn-outline-light tournament-button">{% trans "Create Tournament" %}</button>
+			<button id="join-tournament" class="btn btn-outline-light tournament-button">{% trans "Join Tournament" %}</button>
+			<button id="leave-tournament" class="btn btn-outline-danger tournament-button {% if not current_tournament %}d-none{% endif %}">{% trans "Leave Tournament" %}</button>
+			<div id="tournament-errors" class="error-messages text-danger ms-2 align-self-center"></div>
+		</div>
+
+		<!-- Tournament Status Section --> 
+		<div class="card mb-4 bg-transparent">
+			<div class="card-header bg-dark bg-opacity-75">
+				<h5 class="card-title text-light mb-0">{% trans "Tournament Status" %}</h5>
+			</div>
+			<div class="card-body bg-dark bg-opacity-50">
+				<div id="tournament-state">
+					{% if current_tournament %}
+						<div class="mb-2">
+							<span class="tournament-label-text">{% trans "Tournament" %} ID:</span>
+							<span class="badge bg-secondary">{{ current_tournament.tournament_id }}</span>
+						</div>
+						<div class="mb-2">
+							<span class="tournament-label-text">{% trans "Status:" %}</span>
+							<span class="badge bg-secondary">{{ current_tournament.status }}</span>
+						</div>
+						{% if current_tournament.status == 'IN_PROGRESS' %}
+							<div class="mb-2">
+								<span class="tournament-label-text">{% trans "Round:" %}</span>
+								<span class="badge bg-success">{{ current_tournament.current_round|add:1 }}</span>
+							</div>
+						{% endif %}
+						<div class="mb-3">
+							<span class="tournament-label-text">{% trans "Players:" %}</span>
+							{% for player in current_tournament.players %}
+								<span class="badge bg-secondary">{{ player }}</span>{% if not forloop.last %} {% endif %}
+							{% endfor %}
+						</div>
+
+						{% if current_tournament.status == 'IN_PROGRESS' and current_tournament.current_matches %}
+							<h5 class="tournament-label-text border-bottom pb-2 mb-3">{% trans "Current Round Matches" %}</h5>
+							<div class="tournament-matches">
+								{% for match in current_tournament.current_matches %}
+									<div class="card bg-dark bg-opacity-25 border-secondary mb-2">
+										<div class="card-body p-3">
+											<div class="d-flex justify-content-between align-items-center mb-2">
+												<span class="tournament-label-text">{{ match.player1|default:'TBD' }}</span>
+												<span class="tournament-label-text"> vs </span>
+												<span class="tournament-label-text">{{ match.player2|default:'TBD' }}</span>
+												<span class="badge {% if match.status == 'COMPLETED' %}bg-success{% elif match.status == 'IN_PROGRESS' %}bg-primary{% else %}bg-secondary{% endif %}">
+													{{ match.status }}
+												</span>
+											</div>
+											{% if match.winner %}
+												<div class="text-success mb-2">
+													<span class="tournament-label-text">{% trans "Winner:" %}</span>
+													{{ match.winner }}
+												</div>
+											{% endif %}
+											{% if match.is_player_match and match.status == 'PENDING' %}
+												<button class="join-match-button btn btn-sm btn-outline-light w-100 tournament-join-btn" data-game-id="{{ match.game_id }}">
+													{% trans "Join Match" %}
+												</button>
+											{% endif %}
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+						{% endif %}
+					{% else %}
+						<div class="text-secondary">{% trans "Not in tournament" %}</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+
+
+		</div>
+	</div>
 </div>

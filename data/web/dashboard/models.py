@@ -1,31 +1,29 @@
 from django.db import models
 from django.db.models import Q, Count
+from django.conf import settings
 from backend.models import User, FriendshipRequest
 from pong.models import CompletedGame
 from tournaments.models import Tournament
 
-import logging
+import os, logging
 
 logger = logging.getLogger('pong')
 
 def get_user(username):
 	try:
-		user = User.objects.get(username=username)
-		return user
+		return User.objects.get(username=username, is_active=True)
 	except User.DoesNotExist:
 		return None
 
-# redundant function, can call user.profile_pic directly
 def user_picture(user): 
-	if not user:
-		return None
-	return user.profile_pic
+    if not user:
+        return f"https://{settings.WEB_HOST}{settings.MEDIA_URL}deleted-user/deleted.png"
+    return user.profile_pic
 
 # redundant function, can call user.rank directly
 def user_rank(user):
 	return user.rank if user else 0
 
-# redundant function, can call user.status directly
 def user_status(user):
 	if not user:
 		return "offline"
@@ -34,7 +32,6 @@ def user_status(user):
 def user_about(user):
 	if not user:
 		return {"first_joined": "", "last_seen": ""}
-
 	return {
 		"uuid": str(user.uuid),
 		"first_joined": user.date_joined.strftime("%Y-%m-%d %H:%M:%S") if user.date_joined else "",
@@ -144,7 +141,6 @@ def format_matches(matches_data):
 
 
 def user_friends(user: User):
-	"""Get friends list for a user using the FriendshipRequest model"""
 	if not user:
 		return {"list": []}
 	
@@ -166,7 +162,6 @@ def user_friends(user: User):
 	}
 
 def user_pending_received(user: User):
-	"""Get pending friend requests received by the user"""
 	if not user:
 		return {"list": []}
 	
@@ -190,7 +185,6 @@ def user_pending_received(user: User):
 	}
 
 def user_pending_sent(user: User):
-	"""Get pending friend requests sent by the user"""
 	if not user:
 		return {"list": []}
 	
@@ -243,3 +237,20 @@ def friendship_status(user : User, target_user : User):
 		return 'pending_received'
 
 	return 'none'
+
+def pic_selection(user=None): 
+	directories = [
+		os.path.join(settings.MEDIA_ROOT, 'profile-pics'),
+		os.path.join(settings.MEDIA_ROOT, 'users', str(user.uuid)),
+	]
+	base_url = f"https://{settings.WEB_HOST}{settings.MEDIA_URL}"
+	profile_pics = []
+
+	for directory in directories:
+		if os.path.exists(directory):
+			for pic in sorted(os.listdir(directory)):
+				relative_path = os.path.relpath(directory, settings.MEDIA_ROOT)
+				pic_url = f"{base_url}{relative_path}/{pic}"
+				profile_pics.append(pic_url)
+
+	return profile_pics

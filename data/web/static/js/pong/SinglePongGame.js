@@ -1,3 +1,4 @@
+import { AuthService } from '../index/AuthService.js';
 import { Player, Paddle, Ball, ScoreBoard, GameField } from './PongComponents.js';
 import * as THREE from 'three';
 
@@ -39,6 +40,7 @@ export class QuickLobby {
 
 	startLobby() {
 		this.createLobbyElement();
+		document.cookie = `jwt=${AuthService.jwt}; path=/`;
 		this.socket = new WebSocket(`wss://${window.location.host}/wss/mpong/`);
 		this.setupSocketHandlers();
 	}
@@ -60,23 +62,23 @@ export class QuickLobby {
 					this.statusText.textContent = 'Match found! Starting game...';
 					this.parent.removeChild(this.lobbyElement);
 					const game = new MultiPongGame(this.parent, data.state, this.view);
-					console.log('Match found', data.state);
 					game.startGame();
 					break;
 			}
 		};
 
 		this.socket.onclose = () => {
-			console.log('Lobby Socket closed');
+
 		};
 
 		this.socket.onerror = (error) => {
-			console.log('Socket error', error);
+
 		}
 	}
 
 	refreshView() {
-		window.location.reload();
+		const hash = window.location.hash.substring(2);
+		Router.go(hash);
 	}
 }
 
@@ -86,13 +88,10 @@ export class TournamentLobby extends QuickLobby {
         this.gameId = gameId;
     }
     
-	createLobbyElement() {
-		super.createLobbyElement();
-		this.lobbyElement.removeChild(this.cancelButton);
-	}
 
     startLobby() {
-        this.createLobbyElement(); 
+        this.createLobbyElement();
+		document.cookie = `jwt=${AuthService.jwt}; path=/`; 
         this.socket = new WebSocket(`wss://${window.location.host}/wss/mpong/tournament/${this.gameId}/`);
         this.setupSocketHandlers(); 
     }
@@ -117,13 +116,13 @@ export class PongGame {
         this.scene = null;
         this.camera = null;
         this.renderer = null;
-        this.lights = [];
         this.threeContainer = null;
         this.animationFrameId = null;
         
         // Game dimensions for calculations
         this.fieldWidth = 0;
         this.fieldHeight = 0;
+		this.resizeListener = null;
 	}
 
 	setupSocketHandlers() {
@@ -131,30 +130,42 @@ export class PongGame {
 			const data = JSON.parse(event.data);
 			this.handleGameEvent(data.event, data.state);
 		};
-		this.socket.onopen = () => console.log("Game socket opened");
-		this.socket.onclose = (event) => console.log("Game socket closed");
-		this.socket.onerror = (error) => console.log(error);
+		// this.socket.onopen = () => console.log("Game socket opened");
+		// this.socket.onclose = (event) => console.log("Game socket closed");
+		// this.socket.onerror = (error) => console.log(error);
 	}
     
-    setupThreeJS() {
-        this.scene = new THREE.Scene();
-        this.scene.background = null;
-		// const aspectRatio = this.fieldWidth / this.fieldHeight;
-		const aspectRatio = 1280 / 720;
+	setupThreeJS() {
+		this.scene = new THREE.Scene();
+		this.scene.background = null;
+	
+		const width = window.innerWidth * 0.7; 
+		const height = width * (9/16);  
+		const aspectRatio = width / height;
+		
 		this.camera = new THREE.PerspectiveCamera(60, aspectRatio, 0.1, 2000);
+		
 		this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true});
-		// this.renderer.setSize(this.fieldWidth, this.fieldHeight);
-		this.renderer.setSize(1280, 720);
-
+		this.renderer.setSize(width, height);
 		this.renderer.setPixelRatio(window.devicePixelRatio > 1 ? 2 : 1);
 		this.renderer.powerPreference = "high-performance";
 		this.renderer.physicallyCorrectLights = false;
+	
+		this.resizeListener = this.handleWindowResize.bind(this);
+		window.addEventListener('resize', this.resizeListener);
 
 		this.gameDiv.appendChild(this.renderer.domElement);
-		// const light = new THREE.AmbientLight(0xffffff, 2);
-		// this.scene.add(light);
-        this.startAnimationLoop();
-    }
+		this.startAnimationLoop();
+	}
+
+	handleWindowResize() {
+		const width = window.innerWidth * 0.7;
+		const height = width * (9/16);
+		
+		this.renderer.setSize(width, height);
+		this.camera.aspect = width / height;
+		this.camera.updateProjectionMatrix();
+	}
     
 	cameraSetup(playerSide) {
 		const fieldCenterX = this.fieldWidth / 2;
@@ -216,6 +227,7 @@ export class PongGame {
 				this.scoreBoard.showWinner(state.winner);
 				if (this.player1) this.player1.remove();
 				if (this.player2) this.player2.remove();
+				this.view.insertBackButton();
 				break;
 		}
 	}
@@ -255,13 +267,16 @@ export class PongGame {
 			state.player1_id,
 			state.player2_id
 		);
-		this.scoreBoard.createUi(state.win_points, state.win_sets);
 		
-		// state.win_points, for ui
-		// state.set_points
+		this.scoreBoard.createUi(state.win_points, state.win_sets);
+		this.scoreBoard.update(
+			state.player1_score,
+			state.player2_score,
+			state.player1_sets,
+			state.player2_sets
+		);
 
 		this.setupPlayers(state);
-		console.log("Game started!", state);
 	}
 
 	setupPlayers(state) {
@@ -290,6 +305,11 @@ export class PongGame {
 		if (this.gameDiv && this.gameDiv.parentNode) {
 			this.gameDiv.parentNode.removeChild(this.gameDiv);
 		}
+
+		if (this.resizeListener) {
+			window.removeEventListener('resize', this.resizeListener);
+			this.resizeListener = null;
+		}
 	}
 }
 
@@ -300,6 +320,7 @@ export class AIPongGame extends PongGame {
 	}
 
 	async startGame() {
+		document.cookie = `jwt=${AuthService.jwt}; path=/`;
 		this.socket = new WebSocket(`wss://${window.location.host}/wss/aipong/`);
 		this.setupSocketHandlers();
 		this.socket.onopen = () => {
@@ -326,6 +347,7 @@ export class SinglePongGame extends PongGame {
 
 	async startGame(mode = 'vs') {
 		this.mode = mode;
+		document.cookie = `jwt=${AuthService.jwt}; path=/`;
 		this.socket = new WebSocket(`wss://${window.location.host}/wss/spong/`);
 		this.setupSocketHandlers();
 		this.socket.onopen = () => {
@@ -356,6 +378,7 @@ export class MultiPongGame extends PongGame {
 	}
 
 	async startGame() {
+		document.cookie = `jwt=${AuthService.jwt}; path=/`;
 		this.socket = new WebSocket(`wss://${window.location.host}/${this.game_url}`);
 		this.setupSocketHandlers();
 		

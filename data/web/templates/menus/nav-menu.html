@@ -1,8 +1,10 @@
+{% load i18n %}
 <div class="nav-menu">
-    <img src="/static/images/nav-thumb.png" alt="Navigation" class="menu-icon">
+    <img src="/static/images/nav-thumb2.png" alt="Navigation" class="menu-icon">
     <div class="nav-menu-separator"></div>
     <div class="menu-buttons">
-        <div class="nav-button" id="home-button">HOME</div>
-        <div class="nav-button" id="pong-button">PONG</div>
+        <div class="nav-button" id="home-button">{% trans "HOME" %}</div>
+        <div class="nav-button" id="pong-button">{% trans "PONG" %}</div>
+		<div class="nav-button" id="ladderboard-button">{% trans "LADDER" %}</div>
     </div>
 </div>

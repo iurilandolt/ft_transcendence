@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from authservice.config import SOCIALACCOUNT_PROVIDERS as FORTY_TWO_PROVIDERS
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,11 +41,25 @@ LOGGING = {
 		},
 	}
 }
+
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+LANGUAGE_CODE = 'en-us'
+LANGUAGES = [
+	('en', 'English'),
+	('pt', 'Portuguese'),
+	('fr', 'French'),
+]
+
+LOCALE_PATHS = [
+	BASE_DIR / 'locale',
+]
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-r3%a9xhfwbm8+2bq(%%_r77)%(-7s3xq_$$4g@0q9=%03xd(za'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -62,15 +77,24 @@ def generate_trusted_origins(base_ip, start, end, port):
             origins.append(f"https://{base_ip}.{j}.{i}:{port}")
     return origins
 
+def read_secret(secret_name):
+	try:
+		with open('/run/secrets/' + secret_name) as f:
+			return f.read().strip()
+	except IOError:
+		return None
 
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = read_secret('secret_key')
 
 CSRF_TRUSTED_ORIGINS = [
 	'https://localhost:4443',
+	'https://10.195.1.64:4443',
 ]
 
-CSRF_TRUSTED_ORIGINS.extend(generate_trusted_origins('10.195', 1, 255, 4443))
+CSRF_TRUSTED_ORIGINS.append(f"https://{read_secret('web_host')}")
 
-#CSRF_TRUSTED_ORIGINS.extend(generate_trusted_origins('10.12', 1, 255, 4443))
+# CSRF_TRUSTED_ORIGINS.extend(generate_trusted_origins('10.195', 1, 255, 4443))y
 
 SECURE_SSL_REDIRECT = True
 
@@ -93,10 +117,15 @@ INSTALLED_APPS = [
 	'django.contrib.staticfiles',
 	'django.contrib.sites',
 	'django.contrib.postgres',
+	'rest_framework',
+	'rest_framework_simplejwt',
 	'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.oauth2',
+	'allauth.account',
+	'allauth.socialaccount',
+	'allauth.socialaccount.providers.oauth2',
+	'django_otp',
+	'django_otp.plugins.otp_totp',
+	'drf_yasg',
 	'backend',
 	'pong',
 	'tournaments',
@@ -106,17 +135,49 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'backend.User'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ]
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+	'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',
+        'user': '1000/day',
+    }
+}
+
+
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
+	'django.middleware.security.SecurityMiddleware',
+	'django.contrib.sessions.middleware.SessionMiddleware',
+	'django.middleware.locale.LocaleMiddleware',
+	'django.middleware.common.CommonMiddleware',
+	'django.middleware.csrf.CsrfViewMiddleware',
+	'django.contrib.auth.middleware.AuthenticationMiddleware',
+	'django.contrib.messages.middleware.MessageMiddleware',
+	'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'allauth.account.middleware.AccountMiddleware',
+	'django_otp.middleware.OTPMiddleware',
 ]
+
 ROOT_URLCONF = 'runtime.urls'
+
+TIME_ZONE = 'Europe/Lisbon'
 
 TEMPLATES = [
     {
@@ -137,6 +198,7 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'runtime.wsgi.application'
 
 ASGI_APPLICATION = 'runtime.asgi.application'
@@ -149,13 +211,6 @@ CHANNEL_LAYERS = {
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-def read_secret(secret_name):
-	try:
-		with open('/run/secrets/' + secret_name) as f:
-			return f.read().strip()
-	except IOError:
-		return None
 
 DATABASES = {
 	'default': {
@@ -213,8 +268,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+	'django.contrib.auth.backends.ModelBackend',
+	'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -235,3 +290,12 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 WEB_HOST = read_secret('web_host')
+
+# Email Configuration for Password Reset
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ftt.transcendence.42@gmail.com'
+EMAIL_HOST_PASSWORD = read_secret('email_password')
+DEFAULT_FROM_EMAIL = 'Transcendence Team <ftt.transcendence.42@gmail.com>'

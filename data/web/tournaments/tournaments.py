@@ -36,7 +36,7 @@ class TournamentManager:
 			except Exception as e:
 				logger.error(f'Error processing tournaments: {str(e)}')
 			
-			await asyncio.sleep(5) # should be 1 :)
+			await asyncio.sleep(1) # should be 1 :)
 
 
 	async def process_tournament(self, tournament : Tournament):
@@ -109,36 +109,36 @@ class TournamentManager:
 		return False
 
 
-	def debug_tournament_rounds(self, tournament):
-		logger.info(f'Processing tournament {tournament.tournament_id}')
-		logger.info(f"""
-			=========== Tournament Details ============
-			Tournament ID: {tournament.tournament_id}
-			Status: {tournament.status}
-			Players: {tournament.players}
-			Current Round: {tournament.current_round}
-			Max Players: {tournament.max_players}
-			Winner: {tournament.winner or 'None yet'}
-			Created: {tournament.created_at}
-			Updated: {tournament.updated_at}
-			=========================================""")
+	# def debug_tournament_rounds(self, tournament):
+	# 	logger.info(f'Processing tournament {tournament.tournament_id}')
+	# 	logger.info(f"""
+	# 		=========== Tournament Details ============
+	# 		Tournament ID: {tournament.tournament_id}
+	# 		Status: {tournament.status}
+	# 		Players: {tournament.players}
+	# 		Current Round: {tournament.current_round}
+	# 		Max Players: {tournament.max_players}
+	# 		Winner: {tournament.winner or 'None yet'}
+	# 		Created: {tournament.created_at}
+	# 		Updated: {tournament.updated_at}
+	# 		=========================================""")
 
-		if tournament.rounds and tournament.current_round < len(tournament.rounds):
-			current_round = tournament.rounds[tournament.current_round]
-			logger.info(f"""
-			---------- Current Round Matches ----------
-			Round: {tournament.current_round + 1}
-			Matches:""")
+	# 	if tournament.rounds and tournament.current_round < len(tournament.rounds):
+	# 		current_round = tournament.rounds[tournament.current_round]
+	# 		logger.info(f"""
+	# 		---------- Current Round Matches ----------
+	# 		Round: {tournament.current_round + 1}
+	# 		Matches:""")
 			
-			for i, match in enumerate(current_round):
-				logger.info(f"""
-				Match {i+1}:
-				- Player 1: {match.get('player1', 'N/A')}
-				- Player 2: {match.get('player2', 'N/A')}
-				- Status: {match.get('status', 'N/A')}
-				- Winner: {match.get('winner', 'None yet')}
-				- Game ID: {match.get('game_id', 'N/A')}
-					""")
+	# 		for i, match in enumerate(current_round):
+	# 			logger.info(f"""
+	# 			Match {i+1}:
+	# 			- Player 1: {match.get('player1', 'N/A')}
+	# 			- Player 2: {match.get('player2', 'N/A')}
+	# 			- Status: {match.get('status', 'N/A')}
+	# 			- Winner: {match.get('winner', 'None yet')}
+	# 			- Game ID: {match.get('game_id', 'N/A')}
+	# 				""")
 
 
 

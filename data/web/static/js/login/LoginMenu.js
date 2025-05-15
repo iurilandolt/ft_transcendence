@@ -1,41 +1,63 @@
 import { AuthService } from '../index/AuthService.js';
+import { TournamentView } from '../pong/TournamentView.js';
 import { ProfileView } from '../profile/ProfileView.js';
+import { BaseComponent } from '/static/js/index/BaseComponent.js';
 
 export class LoginMenu extends BaseComponent {
-    constructor() {
-        super('/login-menu/');
-    }
+	constructor() {
+		super('/login-menu/');
+	}
 
-    async onIni() {
+	async onIni() {
 		await this.contentLoaded;
 		this.menu = this.querySelector('.login-menu');
 		this.notificationBadge = document.getElementById('menu-notification-badge');
 		const loginClient = new LoginClient(this);
 
-        if (!this.menu) return;
-        
-        this.menu.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.menu.classList.toggle('expanded');
-			this.notificationBadge && (this.notificationBadge.style.opacity = this.menu.classList.contains('expanded') ? '0' : '1');
-        });
-
-        document.addEventListener('click', () => {
-            this.menu.classList.remove('expanded');
-			if (this.notificationBadge) {this.notificationBadge.style.opacity = '1';}
-        });
-        
-        const logoutButton = this.querySelector('#logout-button');
-        if (logoutButton) {
-            logoutButton.addEventListener('click', async () => {
-                await AuthService.logout();
-            });
-        }
-    }
-
-	async reloadElements() {
+		if (!this.menu) return;
 		
-		const response = await fetch('/login-menu/');
+		AuthService.loginMenu = this;
+		const profileBtn = this.querySelector('#profile-nav-btn');
+		if (profileBtn) {
+			this.addNavButtonHandler(profileBtn, '#/profile');
+		}
+
+		const logoutButton = this.querySelector('#logout-button');
+		if (logoutButton) {
+			logoutButton.addEventListener('click', async () => {
+				await AuthService.logout();
+			});
+		}
+
+		this.menu.addEventListener('click', (e) => {
+			e.stopPropagation();
+			this.menu.classList.toggle('expanded');
+			this.notificationBadge && (this.notificationBadge.style.opacity = this.menu.classList.contains('expanded') ? '0' : '1');
+		});
+
+		document.addEventListener('click', () => {
+			this.menu.classList.remove('expanded');
+			if (this.notificationBadge) {this.notificationBadge.style.opacity = '1';}
+		});
+
+
+	}
+
+	addNavButtonHandler(button, hash) {
+		button.addEventListener('click', () => {
+			if (window.location.hash === hash) {
+				Router.go(hash.substring(2));
+			}
+			else {
+				window.location.hash = hash;
+			}
+		});
+	}
+
+	
+	async reloadElements() {
+		const response = await AuthService.fetchApi('/login-menu/', 'GET', null);
+
 		if (response.ok) {
 			const html = await response.text();
 			const tempDiv = document.createElement('div');
@@ -54,11 +76,17 @@ export class LoginMenu extends BaseComponent {
 						this.notificationBadge = newBadge;
 						this.menu.parentNode.insertBefore(this.notificationBadge, this.menu);
 					}
+					this.notificationBadge.style.opacity = this.menu.classList.contains('expanded') ? '0' : '1';
 				}
 				else if (!newBadge && this.notificationBadge) {
 					this.notificationBadge.remove();
 					this.notificationBadge = null;
 				}
+			}
+
+			const profileBtn = this.querySelector('#profile-nav-btn');
+			if (profileBtn) {
+				this.addNavButtonHandler(profileBtn, '#/profile');
 			}
 
 			const logoutButton = this.querySelector('#logout-button');
@@ -81,8 +109,13 @@ export class LoginMenu extends BaseComponent {
 class LoginClient {
 	constructor(loginView) {
 		this.loginView = loginView;
-		this.socket = new WebSocket(`wss://${window.location.host}/wss/login-menu/`);
+		this.connect();
 		this.setupSocketHandler();
+	}
+
+	connect() {
+		document.cookie = `jwt=${AuthService.jwt}; path=/`;
+		this.socket = new WebSocket(`wss://${window.location.host}/wss/login-menu/`);
 	}
 
 	setupSocketHandler() {
@@ -90,6 +123,7 @@ class LoginClient {
 			this.socket.send(JSON.stringify({
 				action: "connect",
 			}));
+			
 			this.pingInterval = setInterval(() => {
 				this.sendPing();
 			}, 30000);
@@ -101,29 +135,28 @@ class LoginClient {
 			switch(data.event) {
 				case 'pong':
 					this.loginView.reloadElements();
-					console.log(event.data);
 					break;
 				case 'notification':
 					this.loginView.reloadElements();
-					console.log(event.data);
 					break;
 				case 'tournament':
 					this.tournamentAlert();
-					console.log(event.data);
 					break;
 			}
 		};
 
 		this.socket.onclose = () => {
-			console.log('Login menu socket closed');
-            if (this.pingInterval) {
-                clearInterval(this.pingInterval);
-            }
+			if (this.pingInterval) {
+				clearInterval(this.pingInterval);
+			}
 		};
 
 		this.socket.onerror = (error) => {
-			console.log('Login menu socket error', error);
 			this.socket.close();
+			setTimeout(() => {
+				this.connect();
+
+			} , 10000);
 		}
 	}
 
@@ -154,15 +187,20 @@ class LoginClient {
 				alertDiv.remove();
 			}, 7000);
 		}
+		else if (Router.activeComponent instanceof TournamentView) {
+			if (Router.activeComponent.menu) {
+				Router.activeComponent.menu.reloadElements();
+			}
+		}
 	}
 
-    sendPing() {
-        if (this.socket) {
-            this.socket.send(JSON.stringify({
-                action: "ping"
-            }));
-        }
-    }
+	sendPing() {
+		if (this.socket) {
+			this.socket.send(JSON.stringify({
+				action: "ping"
+			}));
+		}
+	}
 }
 
 
