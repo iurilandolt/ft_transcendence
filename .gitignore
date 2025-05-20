@@ -15,6 +15,7 @@ data/web/pong/ai/__pycache__
 data/web/authservice/__pycache__
 data/web/tournaments/__pycache__
 
+secrets
 
 data/web/db.sqlite3
 
